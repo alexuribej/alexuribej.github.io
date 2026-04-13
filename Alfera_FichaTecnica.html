@@ -6,124 +6,120 @@
     <title>Grupo Alfera — Generador de Fichas Técnicas</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        :root { --azul: #1A1A2E; --celeste: #7DAEDC; --bg: #F4F7FA; --texto: #1A1A2E; --error: #E74C3C; }
+        :root { --azul: #1A1A2E; --celeste: #7DAEDC; --bg: #F4F7FA; --texto: #1A1A2E; }
         body { font-family: 'DM Sans', sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--texto); }
-        .header { background: var(--azul); padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; color: white; }
-        .logo { height: 40px; }
-        .main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem; }
+        .header { background: var(--azul); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .logo { height: 45px; filter: brightness(0) invert(1); } /* Ajuste para que el logo blanco resalte */
+        .main { max-width: 850px; margin: 2rem auto; padding: 0 1rem; }
         .hero { text-align: center; margin-bottom: 2rem; }
         .hero h1 { font-size: 2.2rem; color: var(--azul); margin-bottom: 0.5rem; }
         
         .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
-        .step { background: white; padding: 1rem; border-radius: 14px; display: flex; align-items: center; gap: 0.8rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .step-num { background: var(--azul); color: white; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; flex-shrink: 0; }
+        .step { background: white; padding: 1.2rem; border-radius: 12px; display: flex; align-items: center; gap: 0.8rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .step-num { background: var(--azul); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
         
-        .card { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); position: relative; }
-        .input-group { display: flex; gap: 10px; align-items: center; margin-top: 1rem; }
-        input { flex-grow: 1; padding: 15px; border: 1px solid #E0E6ED; border-radius: 10px; font-size: 1rem; }
+        .card { background: white; padding: 2rem; border-radius: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .input-row { display: flex; gap: 10px; margin-top: 1rem; align-items: center; }
+        input { flex: 1; padding: 14px; border: 1px solid #E0E6ED; border-radius: 10px; font-size: 1rem; }
         
-        /* Botón de borrar (X) */
-        .btn-del { background: #fdf2f2; color: var(--error); border: 1px solid #facccc; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .btn-del:hover { background: var(--error); color: white; }
+        .btn-del { background: #fef2f2; color: #e11d48; border: 1px solid #fecaca; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        
+        /* Zona de carga de imagen mejorada */
+        .upload-box { margin-top: 1rem; border: 2px dashed #CBD5E1; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .upload-box:hover { border-color: var(--celeste); background: #F8FAFC; }
+        #preview-img { max-height: 120px; display: none; margin: 10px auto; border-radius: 6px; }
 
-        /* Zona de Imagen */
-        .upload-area { margin-top: 15px; border: 2px dashed #D1D9E0; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; position: relative; }
-        .upload-area:hover { border-color: var(--celeste); background: #f0f7ff; }
-        #img-preview { max-height: 150px; display: none; margin: 10px auto; border-radius: 8px; }
-
-        button.gen-btn { width: 100%; padding: 18px; background: var(--azul); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 1.5rem; }
+        .gen-btn { width: 100%; padding: 18px; background: var(--azul); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 1.5rem; }
         
-        /* Estilo PDF */
-        #ficha-pdf { padding: 40px; display: none; background: white; width: 700px; }
+        /* Estructura PDF */
+        #pdf-layout { padding: 40px; display: none; background: white; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <img src="https://grupoalfera.cl/logo.png" class="logo">
-    <span>GENERADOR DE FICHAS TÉCNICAS</span>
+    <img src="https://grupoalfera.cl/wp-content/uploads/2024/02/logo-alfera-blanco.png" class="logo" alt="Alfera">
+    <span style="font-size: 0.8rem; font-weight: 600; letter-spacing: 1px;">GENERADOR DE FICHAS TÉCNICAS</span>
 </div>
 
 <div class="main">
     <div class="hero">
         <h1>Fichas técnicas en segundos</h1>
-        <p>Pega el link, adjunta la foto y descarga el PDF.</p>
+        <p>Pega el link y adjunta la imagen para generar tu PDF oficial.</p>
     </div>
 
     <div class="steps">
-        <div class="step"><div class="step-num">1</div><div><small>Pega el link</small></div></div>
-        <div class="step"><div class="step-num">2</div><div><small>Sube la foto</small></div></div>
-        <div class="step"><div class="step-num">3</div><div><small>Baja el PDF</small></div></div>
+        <div class="step"><div class="step-num">1</div><div><strong>Pega link</strong></div></div>
+        <div class="step"><div class="step-num">2</div><div><strong>Sube foto</strong></div></div>
+        <div class="step"><div class="step-num">3</div><div><strong>Baja PDF</strong></div></div>
     </div>
 
     <div class="card">
-        <label style="font-weight: bold; color: #555;">LINK DEL PRODUCTO</label>
-        <div class="input-group">
-            <input type="text" id="urlInput" placeholder="https://www.mercadolibre.cl/...">
-            <button class="btn-del" onclick="limpiarTodo()">✕</button>
+        <label style="font-weight: bold; color: #475569; font-size: 0.9rem;">LINK DEL PRODUCTO</label>
+        <div class="input-row">
+            <input type="text" id="prodUrl" placeholder="https://www.mercadolibre.cl/...">
+            <button class="btn-del" onclick="borrarTodo()">✕</button>
         </div>
 
-        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-            <p id="upload-text">📸 Haz clic para adjuntar imagen del producto</p>
-            <img id="img-preview">
-            <input type="file" id="fileInput" hidden accept="image/*" onchange="previewImage(this)">
+        <div class="upload-box" onclick="document.getElementById('fileIn').click()">
+            <span id="up-text">📸 Haz clic para subir imagen</span>
+            <img id="preview-img">
+            <input type="file" id="fileIn" hidden accept="image/*" onchange="handleImage(this)">
         </div>
 
-        <button class="gen-btn" onclick="generarFicha()">Generar fichas técnicas →</button>
-        <p id="status" style="text-align: center; margin-top: 15px; color: #666; font-size: 0.9rem;"></p>
+        <button class="gen-btn" onclick="procesarFicha()">Generar Ficha en PDF →</button>
+        <p id="msg" style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: #64748B;"></p>
     </div>
 </div>
 
-<div id="ficha-pdf">
-    <div style="border-bottom: 3px solid #1A1A2E; padding-bottom: 10px; margin-bottom: 20px;">
-        <img src="https://grupoalfera.cl/logo.png" style="height: 45px; float: right;">
-        <h1 style="color: #1A1A2E;">Ficha Técnica de Producto</h1>
+<div id="pdf-layout">
+    <div style="border-bottom: 4px solid #1A1A2E; padding-bottom: 15px; margin-bottom: 25px;">
+        <img src="https://grupoalfera.cl/wp-content/uploads/2024/02/logo-alfera-color.png" style="height: 50px; float: right;">
+        <h1 style="color: #1A1A2E; margin: 0;">Ficha Técnica</h1>
     </div>
-    <div style="display: flex; gap: 20px;">
-        <div style="flex: 1;">
-            <img id="pdf-foto" style="width: 100%; border-radius: 10px; border: 1px solid #eee;">
-        </div>
-        <div id="pdf-cuerpo" style="flex: 2; font-size: 13px; line-height: 1.6;"></div>
+    <div style="display: flex; gap: 30px;">
+        <img id="pdf-img" style="width: 250px; height: 250px; object-fit: contain; border: 1px solid #eee; border-radius: 8px;">
+        <div id="pdf-txt" style="flex: 1; font-size: 14px; line-height: 1.6; color: #333; white-space: pre-wrap;"></div>
     </div>
-    <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px; font-size: 10px; color: #aaa; text-align: center;">
-        Grupo Alfera - Documento Comercial Oficial
+    <div style="margin-top: 50px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; font-size: 10px; color: #999;">
+        Documento generado para uso comercial exclusivo de Grupo Alfera.
     </div>
 </div>
 
 <script>
-let imagenBase64 = "";
+let imgData = "";
 
-function previewImage(input) {
+function handleImage(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = function(e) {
-            imagenBase64 = e.target.result;
-            document.getElementById('img-preview').src = e.target.result;
-            document.getElementById('img-preview').style.display = 'block';
-            document.getElementById('upload-text').style.display = 'none';
-        }
+        reader.onload = (e) => {
+            imgData = e.target.result;
+            document.getElementById('preview-img').src = imgData;
+            document.getElementById('preview-img').style.display = 'block';
+            document.getElementById('up-text').style.display = 'none';
+        };
         reader.readAsDataURL(input.files[0]);
     }
 }
 
-function limpiarTodo() {
-    document.getElementById('urlInput').value = "";
-    document.getElementById('fileInput').value = "";
-    document.getElementById('img-preview').style.display = 'none';
-    document.getElementById('upload-text').style.display = 'block';
-    imagenBase64 = "";
-    document.getElementById('status').innerText = "🧹 Limpio.";
+function borrarTodo() {
+    document.getElementById('prodUrl').value = "";
+    document.getElementById('fileIn').value = "";
+    document.getElementById('preview-img').style.display = 'none';
+    document.getElementById('up-text').style.display = 'block';
+    imgData = "";
+    document.getElementById('msg').innerText = "Campos limpios.";
 }
 
-async function generarFicha() {
-    const url = document.getElementById('urlInput').value;
-    const status = document.getElementById('status');
+async function procesarFicha() {
+    const url = document.getElementById('prodUrl').value;
     if(!url) return alert("Pega un link primero");
 
-    status.innerText = "⏳ IA analizando el producto...";
+    const msg = document.getElementById('msg');
+    msg.innerText = "⏳ Consultando inteligencia artificial...";
 
     try {
-        const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Authorization": "Bearer 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",
@@ -131,27 +127,35 @@ async function generarFicha() {
             },
             body: JSON.stringify({
                 "model": "google/gemini-2.0-flash-001",
-                "messages": [{ "role": "user", "content": `Genera una ficha técnica profesional para: ${url}. Solo puntos técnicos, sin precios.` }]
+                "messages": [{ "role": "user", "content": `Analiza el producto en este link: ${url}. Crea una ficha técnica profesional con Nombre, Descripción y Especificaciones clave. Sin precios ni enlaces.` }]
             })
         });
 
-        const data = await resp.json();
-        const texto = data.choices[0].message.content;
+        const data = await res.json();
+        const textoFicha = data.choices[0].message.content;
 
-        document.getElementById('pdf-cuerpo').innerText = texto;
-        document.getElementById('pdf-foto').src = imagenBase64 || "";
+        // Montar PDF
+        document.getElementById('pdf-txt').innerText = textoFicha;
+        document.getElementById('pdf-img').src = imgData || "https://via.placeholder.com/300?text=Sin+Imagen";
         
-        const element = document.getElementById('ficha-pdf');
+        const element = document.getElementById('pdf-layout');
         element.style.display = 'block';
 
-        status.innerText = "📦 Creando PDF...";
-
-        const opt = { margin: 0.5, filename: 'Ficha_Alfera.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter' } };
-        await html2pdf().set(opt).from(element).save();
+        msg.innerText = "📄 Generando archivo PDF...";
         
+        await html2pdf().set({
+            margin: 0.5,
+            filename: 'Ficha_Alfera.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        }).from(element).save();
+
         element.style.display = 'none';
-        status.innerText = "✅ ¡Listo! PDF descargado.";
-    } catch (e) { status.innerText = "❌ Error de conexión."; }
+        msg.innerText = "✅ PDF descargado con éxito.";
+    } catch (err) {
+        msg.innerText = "❌ Error. Verifica tu conexión o saldo en OpenRouter.";
+    }
 }
 </script>
 </body>
