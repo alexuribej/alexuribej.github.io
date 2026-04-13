@@ -134,7 +134,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);min
   <p class="footer-note">Grupo Alfera &middot; Las fichas no incluyen datos del proveedor ni links de compra</p>
 </div>
 <script>
-var API_KEY = "sk-ant-api03-SGLxSnr"+"6a3neHAqr15IuyhREIox"+"rQq3r8CCUFWm-bjYoURN93lG82eErFJeCGtgfuyBw6_5obiQ6aaTswCRyZQ-BHGS3wAA";
+var API_KEY = "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";
 var urls = [""];
 var formato = "word";
 
@@ -211,16 +211,16 @@ function generate() {
     filled.map(function(u,i){ return (i+1)+". "+u; }).join("\n") +
     "\n\nResponde SOLO con array JSON valido sin markdown:\n[{\"nombre\":\"...\",\"condicion\":\"...\",\"procesador\":\"...\",\"velocidad\":\"...\",\"nucleos\":\"...\",\"cache\":\"...\",\"ram\":\"...\",\"ram_max\":\"...\",\"almacenamiento\":\"...\",\"pantalla\":\"...\",\"resolucion\":\"...\",\"grafica\":\"...\",\"os\":\"...\",\"puertos\":\"...\",\"red\":\"...\",\"audio\":\"...\",\"dimensiones\":\"...\",\"peso\":\"...\",\"incluye\":\"...\"}]";
 
-  fetch("https://api.anthropic.com/v1/messages", {
+  fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-allow-browser": "true"
+      "Authorization": "Bearer " + apiKey,
+      "HTTP-Referer": "https://grupoalfera.cl",
+      "X-Title": "Alfera Fichas Tecnicas"
     },
     body: JSON.stringify({
-      model: "claude-3-5-haiku-20241022",
+      model: "anthropic/claude-3.5-sonnet",
       max_tokens: 3000,
       messages: [{ role: "user", content: prompt }]
     })
@@ -232,7 +232,7 @@ function generate() {
     return res.json();
   })
   .then(function(data) {
-    var text = data.content[0].text.trim().replace(/```json|```/g,"").trim();
+    var text = data.choices[0].message.content.trim().replace(/```json|```/g,"").trim();
     var productos = JSON.parse(text);
     document.getElementById("s2").className = "done";
     document.getElementById("s3").className = "active";
