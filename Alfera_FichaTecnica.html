@@ -31,12 +31,11 @@
     position: sticky; top: 0; z-index: 100;
   }
   .header-left { display: flex; align-items: center; gap: 15px; }
-  .header img { height: 32px; filter: brightness(0) invert(1); }
+  .header img { height: 35px; display: block; }
   .header-title { color: #7DAEDC; font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 15px; }
 
   /* MAIN */
   .main { max-width: 750px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
-
   .hero { margin-bottom: 2rem; }
   .hero h1 { font-size: 28px; font-weight: 600; color: var(--azul); margin-bottom: 8px; }
   .hero p { font-size: 15px; color: var(--muted); }
@@ -45,7 +44,7 @@
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
   .card-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 12px; }
 
-  /* FILAS DE PRODUCTOS */
+  /* FILAS */
   .url-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: center; background: #f8fafc; padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0; }
   .url-input { flex: 1; height: 42px; border: 1px solid var(--border); border-radius: 8px; padding: 0 12px; font-family: 'DM Mono', monospace; font-size: 12px; outline: none; }
   
@@ -55,21 +54,26 @@
 
   .add-link { width: 100%; height: 42px; border: 2px dashed var(--border); border-radius: 10px; background: transparent; cursor: pointer; font-family: 'DM Sans'; font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 10px; }
 
-  /* BOTÓN GENERAR */
   .gen-btn {
     width: 100%; height: 56px; background: var(--azul); color: #fff; border: none;
     border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 1.5rem;
   }
   .gen-btn:hover { background: var(--azul2); }
 
-  /* LOADING */
   .loading { display: none; text-align: center; padding: 2rem; }
   .loading.show { display: block; }
   .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--azul); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  #pdf-preview { display: none; }
-  .page-break { page-break-after: always; }
+  /* CONTENEDOR PDF (Invisible al usuario pero procesable) */
+  #pdf-preview { 
+    position: absolute; 
+    left: -9999px; 
+    top: 0; 
+    width: 800px; 
+    background: white;
+  }
+  .page-break { page-break-after: always; padding: 50px; background: white; min-height: 1050px; position: relative; }
 </style>
 </head>
 <body>
@@ -84,7 +88,7 @@
 <div class="main">
   <div class="hero">
     <h1>Fichas técnicas corporativas</h1>
-    <p>Ingrese los links y cargue las imágenes de los productos para generar el PDF.</p>
+    <p>Ingrese los links y cargue las imágenes para generar el PDF de Alfera.</p>
   </div>
 
   <div class="card">
@@ -110,12 +114,11 @@
     <div class="spinner"></div>
     <p id="status-text">Procesando información...</p>
   </div>
-
-  <div id="pdf-preview"></div>
 </div>
 
+<div id="pdf-preview"></div>
+
 <script>
-  // Clave privada interna
   const AI_KEY = "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";
 
   function agregarFila() {
@@ -161,11 +164,12 @@
 
     for (let i = 0; i < filas.length; i++) {
       const url = filas[i].querySelector('.url-input').value;
-      const imgData = filas[i].querySelector('img').src || "https://via.placeholder.com/300";
+      const imgInput = filas[i].querySelector('img');
+      const imgData = imgInput.style.display === 'block' ? imgInput.src : "https://via.placeholder.com/300";
       
       if (!url) continue;
 
-      status.innerText = `Analizando producto ${i + 1}...`;
+      status.innerText = `Obteniendo datos del producto ${i + 1}...`;
 
       try {
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -177,7 +181,7 @@
           body: JSON.stringify({
             "model": "google/gemini-2.0-flash-001",
             "messages": [
-              { "role": "user", "content": `Analiza este link: ${url}. Genera una ficha técnica para Grupo Alfera: 1. Nombre. 2. Descripción comercial. 3. Tabla HTML de especificaciones clave. No incluyas precios.` }
+              { "role": "user", "content": `Analiza el link: ${url}. Genera una ficha técnica profesional para Grupo Alfera. Incluye: 1. Nombre. 2. Descripción comercial. 3. Tabla HTML de especificaciones (marca, modelo, características). No pongas precios. Responde solo con el HTML solicitado.` }
             ]
           })
         });
@@ -187,8 +191,6 @@
 
         const page = document.createElement('div');
         page.className = 'page-break';
-        page.style.padding = "50px";
-        page.style.backgroundColor = "white";
         page.innerHTML = `
           <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1A1A2E; padding-bottom: 15px; margin-bottom: 30px;">
             <img src="https://grupoalfera.cl/wp-content/uploads/2024/02/logo-alfera-color.png" style="height: 45px;">
@@ -204,7 +206,7 @@
           </div>
           <div style="position: absolute; bottom: 50px; left: 50px; right: 50px; border-top: 1px solid #eee; padding-top: 15px; font-size: 9px; color: #999; display: flex; justify-content: space-between; font-family: sans-serif;">
             <span>www.grupoalfera.cl</span>
-            <span>Ficha Técnica Generada para Procesos de Compra</span>
+            <span>Ficha Técnica Generada — Alfera Business Tool</span>
           </div>
         `;
         preview.appendChild(page);
@@ -213,17 +215,23 @@
       }
     }
 
-    const opt = {
-      margin: 0,
-      filename: 'Fichas_Tecnicas_Alfera.pdf',
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
+    status.innerText = "Generando archivo PDF...";
+    
+    // Pequeña espera para asegurar que las imágenes se carguen en el preview invisible
+    setTimeout(() => {
+        const opt = {
+          margin: 0,
+          filename: 'Fichas_Alfera.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, logging: false },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
 
-    html2pdf().set(opt).from(preview).save().then(() => {
-      loading.classList.remove("show");
-      btn.style.display = "block";
-    });
+        html2pdf().set(opt).from(preview).save().then(() => {
+          loading.classList.remove("show");
+          btn.style.display = "block";
+        });
+    }, 1000);
   }
 </script>
 
