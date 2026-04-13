@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grupo Alfera — Generador de Fichas Técnicas</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azul: #1A1A2E; --azul2: #1B3A6B; --verde: #2E7D32; --acento: #2D6FAD;
+    --bg: #F4F6FA; --card: #FFFFFF; --border: #E0E6F0; --text: #1A1A2E;
+    --muted: #6B7A99; --success: #2E7D32;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  .header { background: var(--azul); padding: 0 2.5rem; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+  .logo-container { display: flex; align-items: center; gap: 1rem; }
+  .logo-text { color: #fff; font-weight: 600; font-size: 1.1rem; letter-spacing: 0.5px; }
+  .hero { background: linear-gradient(135deg, var(--azul) 0%, #252545 100%); padding: 3rem 2rem; color: #fff; text-align: center; }
+  .main-container { max-width: 900px; margin: -2rem auto 4rem; padding: 0 1.5rem; }
+  .card { background: var(--card); border-radius: 16px; padding: 2.5rem; box-shadow: 0 10px 30px rgba(26,26,46,0.08); border: 1px solid var(--border); }
+  .input-group { margin-bottom: 2rem; }
+  .input-label { display: block; font-weight: 600; margin-bottom: 0.75rem; color: var(--azul2); font-size: 0.95rem; }
+  .product-row { display: flex; gap: 1rem; margin-bottom: 0.75rem; align-items: center; }
+  input[type="text"] { flex: 1; padding: 0.85rem 1rem; border: 2px solid #EDF1F7; border-radius: 10px; font-family: inherit; transition: all 0.3s; background: #F8FAFD; }
+  input:focus { outline: none; border-color: var(--acento); background: #fff; }
+  .btn-gen { width: 100%; padding: 1.25rem; background: var(--azul); color: #fff; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 0.75rem; }
+  .btn-gen:hover { background: var(--acento); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+  .btn-gen:disabled { background: #BDC3C7; cursor: not-allowed; transform: none; }
+  #loading { display: none; margin-top: 2rem; text-align: center; color: var(--muted); }
+  #result { display: none; margin-top: 2rem; padding: 1.5rem; background: #E8F5E9; border-radius: 12px; border: 1px solid #C8E6C9; text-align: center; }
+  .download-btn { display: inline-block; margin-top: 1rem; padding: 0.75rem 1.5rem; background: var(--verde); color: #fff; text-decoration: none; border-radius: 8px; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-container"><span class="logo-text">GRUPO ALFERA</span></div>
+</div>
+
+<div class="hero">
+  <h1>Generador de Fichas Técnicas</h1>
+  <p>Herramienta exclusiva para Ejecutivos Comerciales</p>
+</div>
+
+<div class="main-container">
+  <div class="card">
+    <div class="input-group">
+      <label class="input-label">Links de Productos (hasta 5)</label>
+      <div id="linksContainer">
+        <div class="product-row"><input type="text" class="prod-link" placeholder="https://www.mercadolibre.cl/p/..."></div>
+        <div class="product-row"><input type="text" class="prod-link" placeholder="https://www.sodimac.cl/..."></div>
+        <div class="product-row"><input type="text" class="prod-link" placeholder="Opcional: otro link..."></div>
+      </div>
+    </div>
+    
+    <button class="btn-gen" id="genBtn" onclick="generate()">⚡ Generar Fichas e Imprimir PDF</button>
+
+    <div id="loading">⌛ La IA está analizando los productos y creando las fichas...</div>
+    <div id="result">
+      <p style="color: var(--verde); font-weight: 600;">¡Fichas generadas con éxito!</p>
+      <a href="#" id="downloadLink" class="download-btn">📂 Descargar HTML / Imprimir PDF</a>
+    </div>
+  </div>
+</div>
+
+<script>
+async function generate() {
+  const inputs = document.querySelectorAll('.prod-link');
+  const urls = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== "");
+  
+  if (urls.length === 0) { alert("Por favor ingresa al menos un link."); return; }
+
+  const btn = document.getElementById("genBtn");
+  const loading = document.getElementById("loading");
+  const result = document.getElementById("result");
+
+  btn.disabled = true;
+  loading.style.display = "block";
+  result.style.display = "none";
+
+  const prompt = `Actúa como un experto en licitaciones de Mercado Público Chile. 
+  Genera una ficha técnica profesional en formato JSON para estos productos: ${urls.join(", ")}. 
+  Para cada producto incluye: nombre, descripción_breve, especificaciones (objeto con 6-8 características), beneficios y aplicaciones.`;
+
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer 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",
+        "HTTP-Referer": "https://grupoalfera.cl",
+        "X-Title": "Ficha Tecnica Alfera"
+      },
+      body: JSON.stringify({
+        model: "meta-llama/llama-3.3-70b-instruct",
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    const content = data.choices[0].message.content;
+
+    // Crear el Blob para descargar
+    const blob = new Blob([content], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const dl = document.getElementById("downloadLink");
+    dl.href = url;
+    dl.download = "Ficha_Tecnica_Alfera.html";
+
+    result.style.display = "block";
+  } catch (e) {
+    alert("Error de conexión. Revisa el saldo de OpenRouter.");
+  } finally {
+    btn.disabled = false;
+    loading.style.display = "none";
+  }
+}
+</script>
+</body>
+</html>
