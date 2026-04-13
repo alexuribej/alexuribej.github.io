@@ -1,139 +1,293 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grupo Alfera — Generador de Fichas Técnicas</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <style>
-        :root { --azul: #1A1A2E; --celeste: #7DAEDC; --bg: #F4F7FA; --texto: #1A1A2E; }
-        body { font-family: 'DM Sans', sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--texto); }
-        .header { background: var(--azul); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; color: white; }
-        .logo { height: 45px; filter: brightness(0) invert(1); }
-        .main { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
-        
-        .card { background: white; padding: 2rem; border-radius: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        
-        /* Contenedor de Fila de Producto */
-        .producto-row { display: flex; gap: 10px; align-items: center; margin-bottom: 15px; background: #f8fafc; padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0; }
-        input { flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; }
-        
-        /* Botón de Imagen al costado */
-        .btn-img { width: 50px; height: 50px; border: 1.5px dashed #cbd5e1; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: white; overflow: hidden; position: relative; }
-        .btn-img img { width: 100%; height: 100%; object-fit: cover; }
-        .btn-img span { font-size: 1.2rem; color: #94a3b8; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grupo Alfera — Generador de Fichas Técnicas</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azul: #1A1A2E;
+    --azul2: #1B3A6B;
+    --verde: #2E7D32;
+    --acento: #2D6FAD;
+    --bg: #F4F6FA;
+    --card: #FFFFFF;
+    --border: #E0E6F0;
+    --text: #1A1A2E;
+    --muted: #6B7A99;
+    --success: #2E7D32;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-        .btn-del { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1.2rem; padding: 5px; }
-        .btn-del:hover { color: #e11d48; }
+  /* HEADER */
+  .header {
+    background: var(--azul);
+    padding: 0 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header img { height: 36px; }
+  .header-title { color: #7DAEDC; font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
 
-        .btn-add { width: 100%; padding: 12px; background: none; border: 2px dashed #cbd5e1; color: #64748b; border-radius: 10px; cursor: pointer; font-weight: bold; margin-bottom: 20px; }
-        .btn-add:hover { border-color: var(--celeste); color: var(--azul); }
+  /* MAIN */
+  .main { max-width: 680px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
 
-        .gen-btn { width: 100%; padding: 18px; background: var(--azul); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
-        
-        #pdf-container { display: none; }
-        .page-break { page-break-after: always; }
-    </style>
+  /* HERO */
+  .hero { margin-bottom: 2rem; }
+  .hero h1 { font-size: 28px; font-weight: 600; color: var(--azul); line-height: 1.2; margin-bottom: 8px; }
+  .hero p { font-size: 15px; color: var(--muted); }
+
+  /* STEPS */
+  .steps { display: flex; gap: 8px; margin-bottom: 2rem; }
+  .step { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--azul); color: #fff; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-text { font-size: 12px; color: var(--muted); line-height: 1.3; }
+  .step-text strong { display: block; color: var(--text); font-weight: 500; font-size: 13px; }
+
+  /* CARD */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1rem; }
+  .card-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 12px; }
+
+  /* URL INPUT */
+  .url-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+  .url-num { width: 24px; height: 24px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); font-size: 11px; font-weight: 600; color: var(--muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .url-input { flex: 1; height: 40px; border: 1px solid var(--border); border-radius: 8px; padding: 0 12px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text); background: var(--bg); outline: none; transition: border-color 0.15s; }
+  .url-input:focus { border-color: var(--acento); background: #fff; }
+  .url-input.valid { border-color: var(--success); background: #F0F9F0; }
+  .url-del { width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 7px; background: transparent; cursor: pointer; color: var(--muted); font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+  .url-del:hover { border-color: #E74C3C; color: #E74C3C; background: #FEF2F2; }
+  .add-link { width: 100%; height: 38px; border: 1.5px dashed var(--border); border-radius: 8px; background: transparent; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 4px; transition: all 0.15s; }
+  .add-link:hover { border-color: var(--acento); color: var(--acento); background: #EEF4FC; }
+
+  /* FORMATO */
+  .fmt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .fmt-opt { border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 16px; cursor: pointer; transition: all 0.15s; }
+  .fmt-opt:hover { border-color: var(--acento); }
+  .fmt-opt.active { border-color: var(--acento); background: #EEF4FC; }
+  .fmt-opt input { display: none; }
+  .fmt-icon { font-size: 22px; margin-bottom: 6px; }
+  .fmt-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .fmt-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* CONTADOR */
+  .counter { display: flex; gap: 8px; margin-bottom: 1rem; }
+  .badge { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; font-size: 12px; color: var(--muted); }
+  .badge strong { color: var(--text); }
+
+  /* BTN GENERAR */
+  .gen-btn {
+    width: 100%; height: 52px; background: var(--azul); color: #fff; border: none;
+    border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.2s; position: relative; overflow: hidden;
+  }
+  .gen-btn:hover { background: var(--azul2); transform: translateY(-1px); }
+  .gen-btn:active { transform: scale(0.99); }
+  .gen-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .gen-btn .arrow { font-size: 18px; transition: transform 0.2s; }
+  .gen-btn:hover .arrow { transform: translateX(3px); }
+
+  /* LOADING */
+  .loading { display: none; text-align: center; padding: 2rem; }
+  .loading.show { display: block; }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--azul); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-steps { list-style: none; text-align: left; max-width: 280px; margin: 0 auto; }
+  .loading-steps li { font-size: 13px; color: var(--muted); padding: 4px 0; display: flex; align-items: center; gap: 8px; }
+  .loading-steps li.done { color: var(--success); }
+  .loading-steps li.done::before { content: "✓"; font-weight: 700; }
+  .loading-steps li.active { color: var(--text); font-weight: 500; }
+  .loading-steps li.active::before { content: "›"; font-weight: 700; }
+  .loading-steps li:not(.done):not(.active)::before { content: "·"; }
+
+  /* RESULTADO */
+  .result { display: none; background: #F0F9F0; border: 1.5px solid #A5D6A7; border-radius: 14px; padding: 1.5rem; margin-top: 1rem; text-align: center; }
+  .result.show { display: block; }
+  .result-icon { font-size: 32px; margin-bottom: 8px; }
+  .result h3 { font-size: 16px; font-weight: 600; color: var(--success); margin-bottom: 4px; }
+  .result p { font-size: 13px; color: var(--muted); margin-bottom: 1rem; }
+  .download-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--success); color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; }
+
+  /* API KEY */
+  .api-section { background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .api-section label { font-size: 12px; font-weight: 600; color: #92400E; display: block; margin-bottom: 6px; }
+  .api-input { width: 100%; height: 38px; border: 1px solid #FCD34D; border-radius: 7px; padding: 0 12px; font-family: 'DM Mono', monospace; font-size: 12px; background: #FFFDF0; outline: none; }
+  .api-input:focus { border-color: #F59E0B; }
+  .api-hint { font-size: 11px; color: #92400E; margin-top: 5px; }
+
+  .footer-note { text-align: center; font-size: 12px; color: var(--muted); margin-top: 1.5rem; }
+</style>
 </head>
 <body>
 
 <div class="header">
-    <img src="https://grupoalfera.cl/wp-content/uploads/2024/02/logo-alfera-blanco.png" class="logo">
-    <span style="font-size: 0.8rem; font-weight: 600; letter-spacing: 1px;">GENERADOR DE FICHAS TÉCNICAS</span>
+  <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD..." alt="Grupo Alfera">
+  <div class="header-title">Generador de Fichas Técnicas</div>
 </div>
 
 <div class="main">
-    <div class="card">
-        <div id="lista-productos">
-            <div class="producto-row">
-                <input type="text" class="prod-url" placeholder="Pega el link del producto aquí...">
-                <div class="btn-img" onclick="this.querySelector('input').click()">
-                    <span>+</span>
-                    <input type="file" hidden accept="image/*" onchange="previewImg(this)">
-                    <img style="display:none">
-                </div>
-                <button class="btn-del" onclick="this.parentElement.remove()">✕</button>
-            </div>
-        </div>
+  <div class="hero">
+    <h1>Crear Fichas Técnicas</h1>
+    <p>Ingresa los enlaces de los productos para generar sus fichas técnicas automáticamente utilizando IA.</p>
+  </div>
 
-        <button class="btn-add" onclick="agregarFila()">+ Agregar otro producto</button>
-        <button class="gen-btn" onclick="generarTodo()">Generar Fichas Técnicas →</button>
-        <p id="status" style="text-align: center; margin-top: 15px; color: #64748b; font-size: 0.9rem;"></p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><strong>Enlaces</strong>Pega las URLs de los productos.</div>
     </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><strong>Formato</strong>Elige el estilo visual.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><strong>Generar</strong>Descarga tu PDF listo.</div>
+    </div>
+  </div>
+
+  <div class="api-section">
+    <label>OpenAI API Key (Opcional)</label>
+    <input type="password" class="api-input" placeholder="sk-...">
+    <div class="api-hint">Si no ingresas una, se usará la configuración por defecto del servidor.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Enlaces de Productos</div>
+    <div id="url-container">
+      <div class="url-row">
+        <div class="url-num">1</div>
+        <input type="text" class="url-input" placeholder="https://www.ejemplo.cl/producto-1">
+        <button class="url-del">×</button>
+      </div>
+    </div>
+    <button class="add-link">+ Agregar otro enlace</button>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Formato de Salida</div>
+    <div class="fmt-grid">
+      <label class="fmt-opt active">
+        <input type="radio" name="format" value="modern" checked>
+        <div class="fmt-icon">✨</div>
+        <div class="fmt-name">Moderno</div>
+        <div class="fmt-desc">Limpio, con bordes redondeados y tipografía moderna.</div>
+      </label>
+      <label class="fmt-opt">
+        <input type="radio" name="format" value="classic">
+        <div class="fmt-icon">📄</div>
+        <div class="fmt-name">Clásico</div>
+        <div class="fmt-desc">Estilo formal, optimizado para impresión masiva.</div>
+      </label>
+    </div>
+  </div>
+
+  <div class="counter">
+    <div class="badge">Productos: <strong id="prod-count">1</strong></div>
+    <div class="badge">Est. tiempo: <strong>~15 seg</strong></div>
+  </div>
+
+  <button class="gen-btn" id="btn-generate">
+    <span>Generar Fichas Técnicas</span>
+    <span class="arrow">→</span>
+  </button>
+
+  <div class="loading" id="loading-area">
+    <div class="spinner"></div>
+    <ul class="loading-steps">
+      <li id="l-step-1" class="active">Extrayendo datos de los enlaces...</li>
+      <li id="l-step-2">Procesando especificaciones con IA...</li>
+      <li id="l-step-3">Diseñando archivo PDF final...</li>
+    </ul>
+  </div>
+
+  <div class="result" id="result-area">
+    <div class="result-icon">✅</div>
+    <h3>¡Fichas Generadas con Éxito!</h3>
+    <p>El documento ha sido procesado y está listo para su uso comercial.</p>
+    <a href="#" class="download-btn">Descargar PDF de Fichas</a>
+  </div>
+
+  <div class="footer-note">Propiedad de Grupo Alfera — San Fernando, Chile.</div>
 </div>
 
-<div id="pdf-container"></div>
-
 <script>
-function agregarFila() {
-    const div = document.createElement('div');
-    div.className = 'producto-row';
-    div.innerHTML = `
-        <input type="text" class="prod-url" placeholder="Pega el link del producto aquí...">
-        <div class="btn-img" onclick="this.querySelector('input').click()">
-            <span>+</span>
-            <input type="file" hidden accept="image/*" onchange="previewImg(this)">
-            <img style="display:none">
-        </div>
-        <button class="btn-del" onclick="this.parentElement.remove()">✕</button>
-    `;
-    document.getElementById('lista-productos').appendChild(div);
-}
+  // Funcionalidad básica de la interfaz
+  const addBtn = document.querySelector('.add-link');
+  const container = document.getElementById('url-container');
+  const countDisplay = document.getElementById('prod-count');
 
-function previewImg(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        const container = input.parentElement;
-        reader.onload = (e) => {
-            const img = container.querySelector('img');
-            const span = container.querySelector('span');
-            img.src = e.target.result;
-            img.style.display = 'block';
-            span.style.display = 'none';
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-
-async function generarTodo() {
-    const filas = document.querySelectorAll('.producto-row');
-    const pdfContainer = document.getElementById('pdf-container');
-    const status = document.getElementById('status');
-    pdfContainer.innerHTML = "";
+  addBtn.addEventListener('click', () => {
+    const rows = container.querySelectorAll('.url-row').length;
+    if (rows >= 10) return;
     
-    status.innerText = "⏳ Iniciando proceso con IA...";
+    const div = document.createElement('div');
+    div.className = 'url-row';
+    div.innerHTML = `
+      <div class="url-num">${rows + 1}</div>
+      <input type="text" class="url-input" placeholder="https://www.ejemplo.cl/producto-${rows + 1}">
+      <button class="url-del">×</button>
+    `;
+    container.appendChild(div);
+    updateNumbers();
+  });
 
-    for (let i = 0; i < filas.length; i++) {
-        const url = filas[i].querySelector('.prod-url').value;
-        const imgBase64 = filas[i].querySelector('img').src;
-        if (!url) continue;
+  container.addEventListener('click', (e) => {
+    if (e.target.classList.contains('url-del')) {
+      const rows = container.querySelectorAll('.url-row').length;
+      if (rows > 1) {
+        e.target.parentElement.remove();
+        updateNumbers();
+      }
+    }
+  });
 
-        status.innerText = `⏳ Analizando producto ${i + 1}...`;
+  function updateNumbers() {
+    const rows = container.querySelectorAll('.url-row');
+    rows.forEach((row, i) => {
+      row.querySelector('.url-num').textContent = i + 1;
+    });
+    countDisplay.textContent = rows.length;
+  }
 
-        try {
-            const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Authorization": "Bearer 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",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    "model": "google/gemini-2.0-flash-001",
-                    "messages": [{ "role": "user", "content": `Crea una ficha técnica profesional para: ${url}. Incluye Título y Especificaciones. Sin precios.` }]
-                })
-            });
+  // Manejo de opciones de formato
+  document.querySelectorAll('.fmt-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.fmt-opt').forEach(o => o.classList.remove('active'));
+      opt.classList.add('active');
+    });
+  });
 
-            const data = await res.json();
-            const texto = data.choices[0].message.content;
+  // Simulación de generación
+  const genBtn = document.getElementById('btn-generate');
+  const loading = document.getElementById('loading-area');
+  const result = document.getElementById('result-area');
 
-            // Crear hoja para el PDF
-            const page = document.createElement('div');
-            page.className = 'page-break';
-            page.style.padding = "40px";
-            page.innerHTML = `
-                <div style="border-bottom: 3px solid #1A1A2E; padding-bottom: 10px; margin-bottom: 20px; overflow: hidden;">
-                    <img src="https://grupoalfera.cl/wp-content/uploads/2024/02/logo-alfera-color.png" style="height: 45px; float: right;">
-                    <h2 style="color: #1A1A2E; margin: 0;">Ficha Técnica Comercial</h2>
-                </div>
-                <div style="display: flex; gap: 20px;">
-                    <img src="${imgBase64}" style="width:
+  genBtn.addEventListener('click', () => {
+    genBtn.disabled = true;
+    genBtn.style.display = 'none';
+    loading.classList.add('show');
+    
+    // Simulación de pasos
+    setTimeout(() => {
+      document.getElementById('l-step-1').className = 'done';
+      document.getElementById('l-step-2').className = 'active';
+      setTimeout(() => {
+        document.getElementById('l-step-2').className = 'done';
+        document.getElementById('l-step-3').className = 'active';
+        setTimeout(() => {
+          loading.classList.remove('show');
+          result.classList.add('show');
+        }, 1500);
+      }, 2000);
+    }, 1500);
+  });
+</script>
+
+</body>
+</html>
