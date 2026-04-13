@@ -217,7 +217,7 @@
 
   // Cargar API key guardada
   window.onload = () => {
-    document.getElementById("apiKey").value = "";
+    document.getElementById("apiKey").value = "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";
     render();
   };
 
@@ -331,7 +331,7 @@ Responde SOLO con un array JSON válido (sin markdown, sin texto extra):
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer " + apiKey,
-          "HTTP-Referer": "https://alexuribej.github.io",
+          "HTTP-Referer": "https://grupoalfera.cl",
           "X-Title": "Alfera Fichas Técnicas"
         },
         body: JSON.stringify({
@@ -515,56 +515,5 @@ Responde SOLO con un array JSON válido (sin markdown, sin texto extra):
   }
 </script>
 
-  <!-- MODAL CONFIG -->
-  <div id="configModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:999;align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:16px;padding:2rem;width:100%;max-width:420px;margin:1rem;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;">
-        <div style="width:36px;height:36px;background:#1A1A2E;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">⚙</div>
-        <div>
-          <div style="font-size:15px;font-weight:600;color:#1A1A2E;">Configuración</div>
-          <div style="font-size:12px;color:#6B7A99;">Solo necesitas hacerlo una vez</div>
-        </div>
-      </div>
-      <label style="font-size:12px;font-weight:600;color:#6B7A99;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em;">API Key de Anthropic</label>
-      <input type="password" id="apiKeyModal" placeholder="sk-ant-api03-..."
-        style="width:100%;height:40px;border:1px solid #E0E6F0;border-radius:8px;padding:0 12px;font-family:monospace;font-size:12px;outline:none;margin-bottom:8px;">
-      <p style="font-size:11px;color:#6B7A99;margin-bottom:1.25rem;">
-        Obtén tu clave en <a href="https://platform.claude.com/settings/keys" target="_blank" style="color:#2D6FAD;font-weight:600;">platform.claude.com/settings/keys</a><br>
-        Se guarda solo en este navegador. Nadie más puede verla.
-      </p>
-      <div style="display:flex;gap:8px;">
-        <button onclick="guardarConfig()" style="flex:1;height:40px;background:#1A1A2E;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Guardar</button>
-        <button onclick="cerrarConfig()" style="height:40px;padding:0 16px;border:1px solid #E0E6F0;border-radius:8px;background:transparent;font-size:14px;cursor:pointer;color:#6B7A99;">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-<script>
-
-  function abrirConfig() {
-    const saved = localStorage.getItem("alfera_apikey") || "";
-    document.getElementById("apiKeyModal").value = saved;
-    document.getElementById("configModal").style.display = "flex";
-  }
-  function cerrarConfig() {
-    document.getElementById("configModal").style.display = "none";
-  }
-  function guardarConfig() {
-    const key = document.getElementById("apiKeyModal").value.trim();
-    if (!key) { alert("Por favor ingresa la API Key."); return; }
-    localStorage.setItem("alfera_apikey", key);
-    document.getElementById("apiKey").value = key;
-    cerrarConfig();
-    showToast("✅ Clave guardada correctamente");
-  }
-  function showToast(msg) {
-    const t = document.createElement("div");
-    t.textContent = msg;
-    t.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1A1A2E;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:9999;transition:opacity 0.3s;";
-    document.body.appendChild(t);
-    setTimeout(()=>{ t.style.opacity="0"; setTimeout(()=>t.remove(),300); }, 2500);
-  }
-
-</script>
 </body>
 </html>
