@@ -220,7 +220,7 @@ function generate() {
       "X-Title": "Alfera Fichas Tecnicas"
     },
     body: JSON.stringify({
-      model: "anthropic/claude-3.5-sonnet",
+      model: "openai/gpt-4o-mini",
       max_tokens: 3000,
       messages: [{ role: "user", content: prompt }]
     })
@@ -228,7 +228,7 @@ function generate() {
   .then(function(res) {
     document.getElementById("s1").className = "done";
     document.getElementById("s2").className = "active";
-    if (!res.ok) return res.json().then(function(e){ throw new Error(e.error ? e.error.message : "Error API"); });
+    if (!res.ok) return res.json().then(function(e){ throw new Error("HTTP "+res.status+": "+JSON.stringify(e)); });
     return res.json();
   })
   .then(function(data) {
