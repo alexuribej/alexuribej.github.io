@@ -134,7 +134,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);min
   <p class="footer-note">Grupo Alfera &middot; Las fichas no incluyen datos del proveedor ni links de compra</p>
 </div>
 <script>
-var API_KEY = "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";
+var API_KEY = "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";
 var urls = [""];
 var formato = "word";
 
@@ -215,9 +215,7 @@ function generate() {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": "Bearer " + apiKey,
-      "HTTP-Referer": "https://grupoalfera.cl",
-      "X-Title": "Alfera Fichas Tecnicas"
+      "Authorization": "Bearer " + apiKey
     },
     body: JSON.stringify({
       model: "anthropic/claude-3.5-sonnet",
