@@ -236,46 +236,48 @@ function render() {
 }
 
 function promptParaUrl(url) {
-  var slug = url.split("/").filter(function(s){return s.length>3 && !s.startsWith("http") && !s.startsWith("?");}).join(" ");
-  slug = slug.replace(/-/g," ").replace(/_/g," ").split("?")[0].trim();
+  var slug = url.split("/").pop().split("?")[0].replace(/-/g," ").replace(/_/g," ").trim();
+  if (!slug || slug.length < 3) slug = url;
   
-  var p = "Eres un experto en productos tecnologicos. Identifica este producto y entrega sus especificaciones completas.\n\n";
-  p += "Nombre del producto: " + slug + "\n";
-  p += "URL: " + url + "\n\n";
-  p += "IMPORTANTE: Responde con datos REALES del producto que conoces.\n";
-  p += "- Para TONER/TINTA: usa rendimiento, compatibilidad, color, capacidad, tipo\n";
-  p += "- Para COMPUTADORES: usa CPU, RAM, disco, pantalla\n";
-  p += "- Para otros: adapta los campos disponibles\n";
-  p += "- NO incluyas precio ni nombre de tienda\n";
-  p += "- Si un campo no aplica, pon una cadena vacia \"\"\n\n";
-  p += "Responde SOLO con JSON valido (sin markdown ni texto extra):\n";
-  p += "{";
-  p += "\"nombre\":\"nombre completo con marca y modelo\",";
-  p += "\"condicion\":\"Nuevo\",";
-  p += "\"descripcion\":\"descripcion tecnica del producto en 2 lineas\",";
-  p += "\"compatibilidad\":\"modelos de impresora/dispositivo compatibles\",";
-  p += "\"color\":\"color del toner/tinta\",";
-  p += "\"rendimiento\":\"paginas estimadas o capacidad\",";
-  p += "\"tipo\":\"tipo de cartucho o producto\",";
-  p += "\"procesador\":\"CPU si es computador\",";
-  p += "\"velocidad\":\"velocidad CPU si aplica\",";
-  p += "\"nucleos\":\"nucleos si aplica\",";
-  p += "\"cache\":\"cache si aplica\",";
-  p += "\"ram\":\"RAM si aplica\",";
-  p += "\"ram_max\":\"RAM maxima si aplica\",";
-  p += "\"almacenamiento\":\"disco o capacidad\",";
-  p += "\"pantalla\":\"pantalla si aplica\",";
-  p += "\"resolucion\":\"resolucion si aplica\",";
-  p += "\"grafica\":\"GPU si aplica\",";
-  p += "\"os\":\"sistema operativo si aplica\",";
-  p += "\"puertos\":\"puertos si aplica\",";
-  p += "\"red\":\"conectividad si aplica\",";
-  p += "\"audio\":\"audio si aplica\",";
-  p += "\"dimensiones\":\"dimensiones fisicas\",";
-  p += "\"peso\":\"peso\",";
-  p += "\"incluye\":\"contenido de la caja\"";
-  p += "}";
-  return p;
+  return "You are a product specifications expert for Grupo Alfera, a Chilean technology company. " +
+    "Based on this product URL and name, provide complete technical specifications. " +
+    "Use your training knowledge about this specific product model.\n\n" +
+    "Product name from URL: " + slug + "\n" +
+    "Full URL: " + url + "\n\n" +
+    "Rules:\n" +
+    "- Respond ONLY with a valid JSON object, no markdown, no extra text\n" +
+    "- Use REAL specifications from your knowledge\n" +
+    "- Do NOT include price or store/vendor name\n" +
+    "- For toner/ink: fill descripcion, compatibilidad, color, rendimiento, tipo\n" +
+    "- For computers: fill procesador, ram, almacenamiento, pantalla, etc\n" +
+    "- Leave field as empty string if truly unknown\n\n" +
+    "Respond with this exact JSON structure:\n" +
+    "{\n" +
+    "  \"nombre\": \"[Full product name with brand and model]\",\n" +
+    "  \"condicion\": \"Nuevo\",\n" +
+    "  \"descripcion\": \"[Technical description 1-2 sentences]\",\n" +
+    "  \"compatibilidad\": \"[Compatible devices/printers]\",\n" +
+    "  \"color\": \"[Color if applicable]\",\n" +
+    "  \"rendimiento\": \"[Page yield or capacity]\",\n" +
+    "  \"tipo\": \"[Product type]\",\n" +
+    "  \"procesador\": \"[CPU if computer]\",\n" +
+    "  \"velocidad\": \"[Speed if applicable]\",\n" +
+    "  \"nucleos\": \"[Cores if applicable]\",\n" +
+    "  \"cache\": \"[Cache if applicable]\",\n" +
+    "  \"ram\": \"[RAM if applicable]\",\n" +
+    "  \"ram_max\": \"[Max RAM if applicable]\",\n" +
+    "  \"almacenamiento\": \"[Storage if applicable]\",\n" +
+    "  \"pantalla\": \"[Screen if applicable]\",\n" +
+    "  \"resolucion\": \"[Resolution if applicable]\",\n" +
+    "  \"grafica\": \"[GPU if applicable]\",\n" +
+    "  \"os\": \"[OS if applicable]\",\n" +
+    "  \"puertos\": \"[Ports if applicable]\",\n" +
+    "  \"red\": \"[Network if applicable]\",\n" +
+    "  \"audio\": \"[Audio if applicable]\",\n" +
+    "  \"dimensiones\": \"[Physical dimensions]\",\n" +
+    "  \"peso\": \"[Weight]\",\n" +
+    "  \"incluye\": \"[What is in the box]\"\n" +
+    "}";
 }
 
 function fetchProducto(url) {
