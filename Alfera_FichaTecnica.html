@@ -239,44 +239,40 @@ function promptParaUrl(url) {
   var slug = url.split("/").pop().split("?")[0].replace(/-/g," ").replace(/_/g," ").trim();
   if (!slug || slug.length < 3) slug = url;
   
-  return "You are a product specifications expert for Grupo Alfera, a Chilean technology company. " +
-    "Based on this product URL and name, provide complete technical specifications. " +
-    "Use your training knowledge about this specific product model.\n\n" +
-    "Product name from URL: " + slug + "\n" +
+  return "You are a product specifications expert. Based on the product name/URL below, provide complete technical specifications for ANY type of product (computers, appliances, kitchenware, textiles, tools, office supplies, etc).\n\n" +
+    "Product from URL: " + slug + "\n" +
     "Full URL: " + url + "\n\n" +
-    "Rules:\n" +
-    "- Respond ONLY with a valid JSON object, no markdown, no extra text\n" +
-    "- Use REAL specifications from your knowledge\n" +
-    "- Do NOT include price or store/vendor name\n" +
-    "- For toner/ink: fill descripcion, compatibilidad, color, rendimiento, tipo\n" +
-    "- For computers: fill procesador, ram, almacenamiento, pantalla, etc\n" +
-    "- Leave field as empty string if truly unknown\n\n" +
-    "Respond with this exact JSON structure:\n" +
-    "{\n" +
-    "  \"nombre\": \"[Full product name with brand and model]\",\n" +
-    "  \"condicion\": \"Nuevo\",\n" +
-    "  \"descripcion\": \"[Technical description 1-2 sentences]\",\n" +
-    "  \"compatibilidad\": \"[Compatible devices/printers]\",\n" +
-    "  \"color\": \"[Color if applicable]\",\n" +
-    "  \"rendimiento\": \"[Page yield or capacity]\",\n" +
-    "  \"tipo\": \"[Product type]\",\n" +
-    "  \"procesador\": \"[CPU if computer]\",\n" +
-    "  \"velocidad\": \"[Speed if applicable]\",\n" +
-    "  \"nucleos\": \"[Cores if applicable]\",\n" +
-    "  \"cache\": \"[Cache if applicable]\",\n" +
-    "  \"ram\": \"[RAM if applicable]\",\n" +
-    "  \"ram_max\": \"[Max RAM if applicable]\",\n" +
-    "  \"almacenamiento\": \"[Storage if applicable]\",\n" +
-    "  \"pantalla\": \"[Screen if applicable]\",\n" +
-    "  \"resolucion\": \"[Resolution if applicable]\",\n" +
-    "  \"grafica\": \"[GPU if applicable]\",\n" +
-    "  \"os\": \"[OS if applicable]\",\n" +
-    "  \"puertos\": \"[Ports if applicable]\",\n" +
-    "  \"red\": \"[Network if applicable]\",\n" +
-    "  \"audio\": \"[Audio if applicable]\",\n" +
-    "  \"dimensiones\": \"[Physical dimensions]\",\n" +
-    "  \"peso\": \"[Weight]\",\n" +
-    "  \"incluye\": \"[What is in the box]\"\n" +
+    "CRITICAL RULES:\n" +
+    "1. Respond ONLY with a valid JSON object - no markdown, no text before/after\n" +
+    "2. Use REAL specifications from your knowledge about this specific product\n" +
+    "3. Do NOT include price, store name, or purchase URL\n" +
+    "4. Only fill fields that are RELEVANT to this product type\n" +
+    "5. Leave irrelevant fields as empty string\n\n" +
+    "Return this JSON (fill only relevant fields):\n{" +
+    "\"nombre\": \"[Complete product name with brand and model]\", " +
+    "\"condicion\": \"Nuevo\", " +
+    "\"descripcion\": \"[Technical description of what this product is and does, 2-3 sentences]\", " +
+    "\"marca\": \"[Brand]\", " +
+    "\"modelo\": \"[Model number/code]\", " +
+    "\"material\": \"[Materials used, for kitchenware/textiles/furniture]\", " +
+    "\"color\": \"[Color(s) available]\", " +
+    "\"capacidad\": \"[Capacity: liters for pots, kg for washing machines, pages for printers, etc]\", " +
+    "\"potencia\": \"[Power in watts, for appliances/motors]\", " +
+    "\"voltaje\": \"[Voltage if applicable]\", " +
+    "\"dimensiones\": \"[Physical dimensions W x H x D]\", " +
+    "\"peso\": \"[Weight]\", " +
+    "\"compatibilidad\": \"[Compatible with: printers/devices/models]\", " +
+    "\"rendimiento\": \"[Performance: pages/yield for toner, RPM for motors, etc]\", " +
+    "\"procesador\": \"[CPU for computers only]\", " +
+    "\"ram\": \"[RAM for computers only]\", " +
+    "\"almacenamiento\": \"[Storage for computers/devices only]\", " +
+    "\"pantalla\": \"[Screen size/type for computers/TVs only]\", " +
+    "\"conectividad\": \"[WiFi/BT/ports for tech products]\", " +
+    "\"os\": \"[OS for computers only]\", " +
+    "\"caracteristicas\": \"[Key features and benefits, comma separated]\", " +
+    "\"certificaciones\": \"[Certifications: CE, ISO, FDA, etc if known]\", " +
+    "\"garantia\": \"[Warranty period if known]\", " +
+    "\"incluye\": \"[What comes in the box/package]\"" +
     "}";
 }
 
@@ -367,12 +363,11 @@ function generarFichas(productos) {
   var css = "*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;background:#ccc}.pagina{width:210mm;min-height:297mm;background:#fff;margin:10mm auto;page-break-after:always;border:1px solid #ccc;display:flex;flex-direction:column}.enc{display:flex;align-items:center;background:#1A1A2E;padding:14px 20px;gap:16px}.logo{height:38px}.enc-der{flex:1;text-align:right}.ficha-label{font-size:10px;color:#7DAEDC;font-weight:700;text-transform:uppercase;margin-bottom:3px}.prod-nombre{font-size:16px;color:#fff;font-weight:700;line-height:1.2}.prod-cond{font-size:11px;color:#4FC3F7;font-style:italic;margin-top:3px}.franja{background:#1B3A6B;padding:7px 20px;font-size:11px;color:#DDEEFF;font-weight:600;text-align:center}.cuerpo{display:flex;flex:1;padding:12px}.col-izq{width:38%;padding-right:12px;border-right:1px solid #E0E8F0}.col-der{flex:1;padding-left:12px}.prod-img{width:100%;max-height:130px;object-fit:contain;border-radius:8px;margin-bottom:8px;background:#EEF3FA;border:1px solid #E0E8F0;padding:8px}.placeholder-img{background:#EEF3FA;border-radius:8px;padding:16px;text-align:center;font-size:28px;margin-bottom:8px;color:#2D5FA0}.placeholder-img span{display:block;font-size:10px;color:#6B7A99;margin-top:4px;font-weight:600}.badge-cond{background:#EEF4FC;border:1px solid #2D5FA0;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:#2D5FA0;text-align:center;margin-bottom:10px}.resumen-row{font-size:10px;padding:3px 0;color:#444;border-bottom:1px solid #F0F4F8}.resumen-row b{color:#2D5FA0;font-weight:700}.sec-header{color:#fff;font-size:10px;font-weight:700;padding:5px 10px;letter-spacing:.05em;margin-top:4px}.spec-row{display:flex;font-size:10px;padding:4px 0;border-bottom:1px solid #F0F4F8}.spec-row.alt{background:#F4F7FB}.spec-label{width:38%;font-weight:700;color:#2D5FA0;padding:0 6px}.spec-val{flex:1;color:#555;padding:0 6px}.pie{background:#F4F7FB;border-top:1px solid #E0E6F0;padding:7px 20px;font-size:9px;color:#999;text-align:center;font-style:italic}@media print{body{background:#fff}.pagina{margin:0;border:none}}";
 
   var secciones = [
-    ["DESCRIPCIÓN","0D3B66",[["Descripción","descripcion"],["Tipo","tipo"],["Color","color"],["Rendimiento","rendimiento"],["Compatibilidad","compatibilidad"]]],
-    ["PROCESADOR","1B4332",[["Modelo","procesador"],["Velocidad","velocidad"],["Núcleos/Hilos","nucleos"],["Caché","cache"]]],
-    ["MEMORIA Y ALMACENAMIENTO","3B1F5E",[["RAM","ram"],["RAM máxima","ram_max"],["Almacenamiento","almacenamiento"]]],
-    ["PANTALLA Y GRÁFICOS","5C2D0A",[["Pantalla","pantalla"],["Resolución","resolucion"],["Gráfica","grafica"]]],
-    ["CONECTIVIDAD Y PUERTOS","0D3B66",[["Puertos","puertos"],["Red","red"],["Audio","audio"],["Sistema Op.","os"]]],
-    ["FÍSICO E INCLUYE","1A1A2E",[["Dimensiones","dimensiones"],["Peso","peso"],["Incluye","incluye"]]]
+    ["DESCRIPCIÓN Y CARACTERÍSTICAS","0D3B66",[["Marca","marca"],["Modelo","modelo"],["Descripción","descripcion"],["Características","caracteristicas"],["Color","color"],["Material","material"]]],
+    ["ESPECIFICACIONES TÉCNICAS","1B4332",[["Capacidad","capacidad"],["Potencia","potencia"],["Voltaje","voltaje"],["Rendimiento","rendimiento"],["Compatibilidad","compatibilidad"],["Certificaciones","certificaciones"]]],
+    ["PROCESADOR Y MEMORIA","3B1F5E",[["Procesador","procesador"],["RAM","ram"],["Almacenamiento","almacenamiento"],["Pantalla","pantalla"],["Sistema Op.","os"]]],
+    ["CONECTIVIDAD","5C2D0A",[["Conectividad","conectividad"]]],
+    ["FÍSICO Y CONTENIDO","1A1A2E",[["Dimensiones","dimensiones"],["Peso","peso"],["Garantía","garantia"],["Incluye","incluye"]]]
   ];
 
   var hojas = productos.map(function(p){
@@ -380,7 +375,7 @@ function generarFichas(productos) {
       ? "<img src='" + p._imagen + "' class='prod-img' alt='Producto'>"
       : "<div class='placeholder-img'>&#128230;<br><span>" + (p.nombre||"") + "</span></div>";
 
-    var resumen = [["Tipo","tipo"],["Color","color"],["Rendimiento","rendimiento"],["Compatibilidad","compatibilidad"],["Pantalla","pantalla"],["Procesador","procesador"],["RAM","ram"],["Disco","almacenamiento"],["Incluye","incluye"]]
+    var resumen = [["Marca","marca"],["Modelo","modelo"],["Color","color"],["Material","material"],["Capacidad","capacidad"],["Potencia","potencia"],["Compatibilidad","compatibilidad"],["Procesador","procesador"],["Pantalla","pantalla"],["Incluye","incluye"]]
       .filter(function(x){ return p[x[1]] && p[x[1]] !== "N/A" && p[x[1]] !== "n/a" && p[x[1]].trim() !== ""; })
       .map(function(x){ return "<div class='resumen-row'><b>"+x[0]+":</b> "+p[x[1]]+"</div>"; }).join("");
 
