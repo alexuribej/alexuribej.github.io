@@ -236,32 +236,43 @@ function render() {
 }
 
 function promptParaUrl(url) {
-  var p = "Eres un experto en fichas tecnicas. Analiza este producto y extrae sus especificaciones.\n";
-  p += "URL: " + url + "\n\n";
-  p += "REGLAS: No incluyas precio, no menciones tienda/proveedor/URL.\n";
-  p += "Si el producto no tiene algun campo (ej pantalla en una tinta), pon null.\n\n";
-  p += "Responde SOLO con este JSON sin markdown:\n";
+  // Extraer nombre del producto desde la URL
+  var slug = url.split("/").pop().split("?")[0];
+  slug = slug.replace(/-/g," ").replace(/_/g," ");
+  
+  var p = "Eres un experto en productos tecnologicos y de oficina. ";
+  p += "Basandote en el siguiente nombre de producto extraido de una URL, entrega sus especificaciones tecnicas completas usando tu conocimiento.\n\n";
+  p += "Nombre del producto (extraido de URL): " + slug + "\n";
+  p += "URL completa (referencia): " + url + "\n\n";
+  p += "INSTRUCCIONES:\n";
+  p += "- Identifica el modelo exacto del producto\n";
+  p += "- Entrega TODAS las especificaciones tecnicas que conozcas\n";
+  p += "- Si es toner/tinta: incluye rendimiento, compatibilidad, capacidad\n";
+  p += "- Si es computador: incluye CPU, RAM, disco, pantalla, etc\n";
+  p += "- NO incluyas precio ni nombre de tienda\n";
+  p += "- Usa el campo 'descripcion' para una descripcion tecnica del producto\n\n";
+  p += "Responde SOLO con JSON valido (sin markdown):\n";
   p += "{";
-  p += "\"nombre\":\"Marca + modelo completo\",";
+  p += "\"nombre\":\"[nombre completo con marca y modelo]\",";
   p += "\"condicion\":\"Nuevo\",";
-  p += "\"procesador\":\"CPU\",";
-  p += "\"velocidad\":\"GHz\",";
-  p += "\"nucleos\":\"nucleos/hilos\",";
-  p += "\"cache\":\"cache\",";
-  p += "\"ram\":\"RAM\",";
-  p += "\"ram_max\":\"RAM max\",";
-  p += "\"almacenamiento\":\"disco\",";
-  p += "\"pantalla\":\"pantalla\",";
-  p += "\"resolucion\":\"resolucion\",";
-  p += "\"grafica\":\"GPU\",";
-  p += "\"os\":\"sistema operativo\",";
-  p += "\"puertos\":\"puertos\",";
-  p += "\"red\":\"WiFi/Bluetooth\",";
-  p += "\"audio\":\"audio\",";
-  p += "\"dimensiones\":\"dimensiones\",";
-  p += "\"peso\":\"peso\",";
-  p += "\"incluye\":\"contenido de la caja\",";
-  p += "\"descripcion\":\"descripcion tecnica breve\"";
+  p += "\"procesador\":\"[si aplica, si no: null]\",";
+  p += "\"velocidad\":\"[si aplica, si no: null]\",";
+  p += "\"nucleos\":\"[si aplica, si no: null]\",";
+  p += "\"cache\":\"[si aplica, si no: null]\",";
+  p += "\"ram\":\"[si aplica, si no: null]\",";
+  p += "\"ram_max\":\"[si aplica, si no: null]\",";
+  p += "\"almacenamiento\":\"[si aplica, si no: null]\",";
+  p += "\"pantalla\":\"[si aplica, si no: null]\",";
+  p += "\"resolucion\":\"[si aplica, si no: null]\",";
+  p += "\"grafica\":\"[si aplica, si no: null]\",";
+  p += "\"os\":\"[si aplica, si no: null]\",";
+  p += "\"puertos\":\"[lista de puertos]\",";
+  p += "\"red\":\"[conectividad]\",";
+  p += "\"audio\":\"[si aplica, si no: null]\",";
+  p += "\"dimensiones\":\"[dimensiones fisicas]\",";
+  p += "\"peso\":\"[peso]\",";
+  p += "\"incluye\":\"[contenido de la caja]\",";
+  p += "\"descripcion\":\"[descripcion tecnica en 1-2 lineas]\"";
   p += "}";
   return p;
 }
