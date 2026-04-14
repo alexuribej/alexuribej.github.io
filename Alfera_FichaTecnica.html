@@ -236,7 +236,34 @@ function render() {
 }
 
 function promptParaUrl(url) {
-  return "Eres un asistente de Grupo Alfera. Busca las especificaciones técnicas completas del siguiente producto.\n\nREGLAS IMPORTANTES:\n- NO menciones el precio\n- NO menciones el proveedor, tienda ni sitio web\n- NO incluyas el link\n- SI incluye la marca del producto (HP, Dell, Lenovo, Apple, Samsung, etc.)\n- Extrae TODOS los datos técnicos disponibles\n- Si es reacondicionado, indica el grado (A, B, etc.)\n\nLink del producto: " + url + "\n\nResponde SOLO con UN objeto JSON válido sin markdown ni texto extra:\n{\"nombre\":\"Nombre completo con marca\",\"condicion\":\"Nuevo / Reacondicionado Grado A\",\"procesador\":\"...\",\"velocidad\":\"...\",\"nucleos\":\"...\",\"cache\":\"...\",\"ram\":\"...\",\"ram_max\":\"...\",\"almacenamiento\":\"...\",\"pantalla\":\"...\",\"resolucion\":\"...\",\"grafica\":\"...\",\"os\":\"...\",\"puertos\":\"...\",\"red\":\"...\",\"audio\":\"...\",\"dimensiones\":\"...\",\"peso\":\"...\",\"incluye\":\"...\"}";
+  var p = "Eres un experto en fichas tecnicas. Analiza este producto y extrae sus especificaciones.\n";
+  p += "URL: " + url + "\n\n";
+  p += "REGLAS: No incluyas precio, no menciones tienda/proveedor/URL.\n";
+  p += "Si el producto no tiene algun campo (ej pantalla en una tinta), pon null.\n\n";
+  p += "Responde SOLO con este JSON sin markdown:\n";
+  p += "{";
+  p += "\"nombre\":\"Marca + modelo completo\",";
+  p += "\"condicion\":\"Nuevo\",";
+  p += "\"procesador\":\"CPU\",";
+  p += "\"velocidad\":\"GHz\",";
+  p += "\"nucleos\":\"nucleos/hilos\",";
+  p += "\"cache\":\"cache\",";
+  p += "\"ram\":\"RAM\",";
+  p += "\"ram_max\":\"RAM max\",";
+  p += "\"almacenamiento\":\"disco\",";
+  p += "\"pantalla\":\"pantalla\",";
+  p += "\"resolucion\":\"resolucion\",";
+  p += "\"grafica\":\"GPU\",";
+  p += "\"os\":\"sistema operativo\",";
+  p += "\"puertos\":\"puertos\",";
+  p += "\"red\":\"WiFi/Bluetooth\",";
+  p += "\"audio\":\"audio\",";
+  p += "\"dimensiones\":\"dimensiones\",";
+  p += "\"peso\":\"peso\",";
+  p += "\"incluye\":\"contenido de la caja\",";
+  p += "\"descripcion\":\"descripcion tecnica breve\"";
+  p += "}";
+  return p;
 }
 
 function fetchProducto(url) {
