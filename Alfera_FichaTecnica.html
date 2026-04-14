@@ -292,12 +292,16 @@ function fetchProducto(url) {
     return res.json();
   })
   .then(function(data) {
-    alert("RESP: " + JSON.stringify(data).substring(0,400));
-    var text = data.choices[0].message.content.trim().replace(/```json|```/g,"").trim();
+    var raw = data.choices && data.choices[0] ? data.choices[0].message.content : JSON.stringify(data);
+    alert("RAW RESP: " + raw.substring(0,400));
+    var text = raw.trim().replace(/```json|```/g,"").trim();
     var match = text.match(/\{[\s\S]*\}/);
     if (match) text = match[0];
-    try { return JSON.parse(text); }
-    catch(e) { alert("JSON ERROR: " + text.substring(0,300)); throw e; }
+    try {
+      var p = JSON.parse(text);
+      alert("NOMBRE: " + (p.nombre||"vacio") + "\nDESC: " + (p.descripcion||"vacio"));
+      return p;
+    } catch(e) { alert("JSON ERR: " + text.substring(0,200)); throw e; }
   });
 }
 
