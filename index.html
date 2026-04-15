@@ -5,82 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grupo Alfera | Soluciones Integrales</title>
     <style>
-        :root {
-            --primary: #1f2a44;
-            --accent: #0056b3;
-            --bg: #f8fafc;
-        }
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f9;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            text-align: center;
+            color: #1f2a44;
         }
-        .card {
+        .container {
             background: white;
-            padding: 40px;
+            padding: 50px 30px;
             border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            text-align: center;
             max-width: 450px;
             width: 90%;
         }
         img {
-            width: 180px;
-            margin-bottom: 20px;
-        }
-        h1 {
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            letter-spacing: -0.5px;
-        }
-        p {
-            color: #64748b;
-            font-size: 16px;
-            line-height: 1.6;
+            width: 200px;
             margin-bottom: 25px;
         }
-        .contact-info {
-            border-top: 1px solid #e2e8f0;
-            padding-top: 20px;
+        h1 {
+            font-size: 26px;
+            margin-bottom: 15px;
+            color: #1f2a44;
         }
-        .btn-whatsapp {
+        p {
+            font-size: 16px;
+            color: #5e6d82;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .btn-contact {
             display: inline-block;
-            background-color: #25D366;
+            background-color: #1f2a44;
             color: white;
-            padding: 12px 25px;
+            padding: 12px 30px;
             text-decoration: none;
             border-radius: 50px;
             font-weight: bold;
-            transition: transform 0.2s;
+            transition: 0.3s;
         }
-        .btn-whatsapp:hover {
-            transform: scale(1.05);
+        .btn-contact:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
         }
-        .email-link {
+        .footer-mail {
             display: block;
-            margin-top: 15px;
-            color: var(--accent);
-            text-decoration: none;
+            margin-top: 20px;
             font-size: 14px;
+            color: #0056b3;
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
-    <div class="card">
+    <div class="container">
         <img src="Grupo Alfera.jpg" alt="Logo Grupo Alfera">
         <h1>Soluciones Estratégicas</h1>
-        <p>Expertos en comercialización y logística para el mercado público y privado. Estamos renovando nuestra plataforma para brindarte un mejor servicio.</p>
-        
-        <div class="contact-info">
-            <a href="https://wa.me/569XXXXXXXX" class="btn-whatsapp">Contactar por WhatsApp</a>
-            <a href="mailto:contacto@grupoalfera.cl" class="email-link">contacto@grupoalfera.cl</a>
-        </div>
+        <p>Estamos transformando nuestra plataforma para ofrecerte la mejor experiencia en comercialización y logística.</p>
+        <a href="mailto:contacto@grupoalfera.cl" class="btn-contact">Enviar Mensaje</a>
+        <a href="mailto:contacto@grupoalfera.cl" class="footer-mail">contacto@grupoalfera.cl</a>
     </div>
 </body>
 </html>
