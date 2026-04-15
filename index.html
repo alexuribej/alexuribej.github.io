@@ -1,44 +1,86 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Grupo Alfera</title>
-  <style>
-    body {
-      background-color: #f6f8fb;
-      font-family: "Segoe UI", Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding-top: 120px;
-    }
-    img {
-      width: 220px;
-      margin-bottom: 30px;
-    }
-    h1 {
-      color: #1f2a44;
-      font-size: 36px;
-      margin-bottom: 10px;
-    }
-    p {
-      color: #555;
-      font-size: 18px;
-      margin-top: 0;
-    }
-    a {
-      color: #0056b3;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupo Alfera | Soluciones Integrales</title>
+    <style>
+        :root {
+            --primary: #1f2a44;
+            --accent: #0056b3;
+            --bg: #f8fafc;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            max-width: 450px;
+            width: 90%;
+        }
+        img {
+            width: 180px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+        p {
+            color: #64748b;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        .contact-info {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+        .btn-whatsapp {
+            display: inline-block;
+            background-color: #25D366;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        .btn-whatsapp:hover {
+            transform: scale(1.05);
+        }
+        .email-link {
+            display: block;
+            margin-top: 15px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-  <img src="Grupo Alfera.jpg" alt="Logo Grupo Alfera">
-  <h1>Sitio en Construcción</h1>
-  <p>Pronto estaremos en línea con todas nuestras soluciones.</p>
-  <p>📧 Contáctanos: <a href="mailto:contacto@grupoalfera.cl">contacto@grupoalfera.cl</a></p>
+    <div class="card">
+        <img src="Grupo Alfera.jpg" alt="Logo Grupo Alfera">
+        <h1>Soluciones Estratégicas</h1>
+        <p>Expertos en comercialización y logística para el mercado público y privado. Estamos renovando nuestra plataforma para brindarte un mejor servicio.</p>
+        
+        <div class="contact-info">
+            <a href="https://wa.me/569XXXXXXXX" class="btn-whatsapp">Contactar por WhatsApp</a>
+            <a href="mailto:contacto@grupoalfera.cl" class="email-link">contacto@grupoalfera.cl</a>
+        </div>
+    </div>
 </body>
 </html>
