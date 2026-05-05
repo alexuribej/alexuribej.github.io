@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cotizador Grupo Alfera — Vista Previa PDF</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    * { font-family: 'Inter', system-ui, sans-serif; }
+    .region-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 24 24'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 32px; }
+    /* PDF document simulation */
+    .pdf-page {
+      width: 794px; /* A4 at 96dpi */
+      background: white;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+    }
+    .pdf-table td, .pdf-table th { padding: 6px 10px; font-size: 11px; }
+    .pdf-table thead tr { background: #1B3A6B; color: white; }
+    .pdf-table tbody tr:nth-child(even) { background: #F8FAFC; }
+    .pdf-table tbody tr { border-bottom: 1px solid #E2E8F0; }
+  </style>
+</head>
+<body class="w-[1440px] min-h-screen bg-[#F1F5F9]">
+
+  <!-- ===== NAVBAR ===== -->
+  <header data-design-id="header-main-a1b2c3" class="bg-[#1B3A6B] text-white shadow-lg">
+    <div class="px-12 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">
+          <img src="data:image/jpeg;base64,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" alt="Grupo Alfera" class="h-9 w-auto rounded-lg">
+        </div>
+        <div>
+          <div class="text-base font-bold tracking-tight leading-tight">Grupo Alfera</div>
+          <div class="text-xs text-blue-200 leading-tight">Sistema de Cotización</div>
+        </div>
+      </div>
+      <nav data-design-id="nav-top-d4e5f6" class="flex items-center gap-6">
+        <span class="text-sm text-blue-100 flex items-center gap-1.5">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
+          Carlos Muñoz
+        </span>
+        <button data-design-id="btn-nueva-cot-nav-h1i2j3" class="bg-[#F59E0B] text-[#1B3A6B] text-sm font-semibold px-4 py-1.5 rounded-lg hover:bg-amber-400 transition-colors">
+          + Nueva Cotización
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main data-design-id="main-content-k4l5m6" class="px-12 py-8">
+
+    <!-- Top action bar -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <button data-design-id="btn-volver-editor-b2c3d4" class="flex items-center gap-2 text-sm text-[#2563EB] font-medium hover:text-blue-800 transition-colors">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Volver al editor
+        </button>
+        <div class="w-px h-5 bg-gray-300"></div>
+        <div>
+          <h1 class="text-xl font-bold text-[#1B3A6B]">Vista Previa — #COT-2026-0847</h1>
+          <p class="text-xs text-gray-500">Municipalidad de Maipú · Generado el 05 May 2026</p>
+        </div>
+      </div>
+      <!-- Action buttons -->
+      <div class="flex items-center gap-3">
+        <button data-design-id="btn-copiar-link-e5f6g7" class="flex items-center gap-2 text-sm text-gray-600 font-medium px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Copiar enlace
+        </button>
+        <button data-design-id="btn-enviar-email-h8i9j0" class="flex items-center gap-2 text-sm text-gray-600 font-medium px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Enviar por email
+        </button>
+        <button data-design-id="btn-descargar-pdf-k1l2m3" class="flex items-center gap-2 text-sm bg-[#1B3A6B] text-white font-semibold px-5 py-2 rounded-lg hover:bg-blue-900 transition-colors shadow-sm">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Layout: PDF preview left, metadata panel right -->
+    <div class="flex gap-8 items-start">
+
+      <!-- ===== PDF DOCUMENT PREVIEW ===== -->
+      <div class="flex-1">
+        <!-- Success toast -->
+        <div class="mb-4 flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg px-4 py-3">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span class="text-sm font-semibold text-green-700">¡Cotización generada correctamente!</span>
+          <span class="text-sm text-green-600">El PDF está listo para descargar o enviar al cliente.</span>
+        </div>
+
+        <!-- A4 page simulation -->
+        <div class="pdf-page mx-auto">
+          <!-- PDF Header -->
+          <div class="bg-[#1B3A6B] px-8 py-6 flex items-start justify-between">
+            <div>
+              <div class="text-white text-xl font-bold tracking-tight">GRUPO ALFERA</div>
+              <div class="text-blue-200 text-xs mt-0.5">Ferretera &amp; Materiales de Construcción</div>
+              <div class="text-blue-300 text-[10px] mt-2 space-y-0.5">
+                <div>Av. Las Industrias 4521, San Bernardo, Santiago</div>
+                <div>ventas@grupoalfera.cl · +56 2 2345 6789</div>
+                <div>RUT: 76.543.210-8</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="bg-[#F59E0B] text-[#1B3A6B] text-xs font-bold px-3 py-1 rounded-md inline-block">COTIZACIÓN</div>
+              <div class="text-white text-lg font-bold mt-2">#COT-2026-0847</div>
+              <div class="text-blue-200 text-[10px] mt-1">Fecha: 05 / Mayo / 2026</div>
+              <div class="text-blue-200 text-[10px]">Válida hasta: 04 / Junio / 2026</div>
+            </div>
+          </div>
+
+          <!-- Client section -->
+          <div class="px-8 py-5 border-b border-gray-100">
+            <div class="grid grid-cols-2 gap-6">
+              <div>
+                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-2">Datos del Cliente</div>
+                <div class="text-sm font-bold text-gray-800">Municipalidad de Maipú</div>
+                <div class="text-xs text-gray-600 mt-0.5">RUT: 69.071.100-9</div>
+                <div class="text-xs text-gray-600">Av. 5 de Abril 100, Maipú, Santiago</div>
+                <div class="text-xs text-gray-600">Región Metropolitana</div>
+              </div>
+              <div>
+                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-2">Contacto</div>
+                <div class="text-xs text-gray-600 space-y-0.5">
+                  <div>Sr(a): —</div>
+                  <div>Email: adquisiciones@maipu.cl</div>
+                  <div>Teléfono: +56 2 2531 2000</div>
+                  <div class="mt-1 text-[10px] text-gray-400">Licitación: <span class="font-semibold text-[#1B3A6B]">2320-54-COT26</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Products table -->
+          <div class="px-8 py-5">
+            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-3">Detalle de Productos</div>
+            <table class="pdf-table w-full border border-gray-200 rounded-lg overflow-hidden">
+              <thead>
+                <tr>
+                  <th class="text-left" style="width:32%">Descripción</th>
+                  <th class="text-center" style="width:8%">Cant.</th>
+                  <th class="text-right" style="width:14%">Precio Unit. Neto</th>
+                  <th class="text-right" style="width:12%">Precio c/IVA</th>
+                  <th class="text-right" style="width:14%">Total Neto</th>
+                  <th class="text-right" style="width:14%">Total c/IVA</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="font-medium text-gray-800">Candado Abus 40mm Combinación</td>
+                  <td class="text-center">50</td>
+                  <td class="text-right">$ 4.873</td>
+                  <td class="text-right">$ 5.799</td>
+                  <td class="text-right">$ 243.672</td>
+                  <td class="text-right font-semibold">$ 289.950</td>
+                </tr>
+                <tr>
+                  <td class="font-medium text-gray-800">Tornillo Hex. Galv. 5/16x2"</td>
+                  <td class="text-center">500</td>
+                  <td class="text-right">$ 353</td>
+                  <td class="text-right">$ 420</td>
+                  <td class="text-right">$ 176.471</td>
+                  <td class="text-right font-semibold">$ 210.000</td>
+                </tr>
+                <tr>
+                  <td class="font-medium text-gray-800">Guante Cuero Soldador Talla L</td>
+                  <td class="text-center">20</td>
+                  <td class="text-right">$ 4.084</td>
+                  <td class="text-right">$ 4.860</td>
+                  <td class="text-right">$ 81.681</td>
+                  <td class="text-right font-semibold">$ 97.200</td>
+                </tr>
+                <tr>
+                  <td class="font-medium text-gray-800">Cinta Reflectante Blanca 50mm x 25m</td>
+                  <td class="text-center">15</td>
+                  <td class="text-right">$ 12.785</td>
+                  <td class="text-right">$ 15.214</td>
+                  <td class="text-right">$ 191.773</td>
+                  <td class="text-right font-semibold">$ 228.210</td>
+                </tr>
+                <tr>
+                  <td class="font-medium text-gray-800">Cerradura Embutir Yale YD-40</td>
+                  <td class="text-center">8</td>
+                  <td class="text-right">$ 29.093</td>
+                  <td class="text-right">$ 34.620</td>
+                  <td class="text-right">$ 232.773</td>
+                  <td class="text-right font-semibold">$ 276.960</td>
+                </tr>
+                <tr>
+                  <td class="font-medium text-gray-800">Pintura Látex Interior Blanco 4L</td>
+                  <td class="text-center">24</td>
+                  <td class="text-right">$ 19.143</td>
+                  <td class="text-right">$ 22.780</td>
+                  <td class="text-right">$ 459.428</td>
+                  <td class="text-right font-semibold">$ 546.720</td>
+                </tr>
+                <tr>
+                  <td class="font-medium text-gray-800">Casco Seguridad Blanco Tipo I</td>
+                  <td class="text-center">30</td>
+                  <td class="text-right">$ 5.354</td>
+                  <td class="text-right">$ 6.371</td>
+                  <td class="text-right">$ 160.609</td>
+                  <td class="text-right font-semibold">$ 191.130</td>
+                </tr>
+                <tr>
+                  <td class="font-medium text-gray-800">Cadena Galvanizada 6mm x 5m</td>
+                  <td class="text-center">10</td>
+                  <td class="text-right">$ 7.985</td>
+                  <td class="text-right">$ 9.501</td>
+                  <td class="text-right">$ 79.832</td>
+                  <td class="text-right font-semibold">$ 95.010</td>
+                </tr>
+                <tr>
+                  <td class="font-medium text-gray-800">Llave Stilson 12" Truper</td>
+                  <td class="text-center">5</td>
+                  <td class="text-right">$ 9.715</td>
+                  <td class="text-right">$ 11.561</td>
+                  <td class="text-right">$ 48.571</td>
+                  <td class="text-right font-semibold">$ 57.805</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Totals section -->
+          <div class="px-8 pb-5 flex justify-end">
+            <div class="w-64">
+              <div class="space-y-1.5">
+                <div class="flex justify-between text-xs text-gray-600">
+                  <span>Subtotal neto productos</span>
+                  <span>$ 1.674.810</span>
+                </div>
+                <div class="flex justify-between text-xs text-gray-600">
+                  <span>Despacho (Chilexpress)</span>
+                  <span>$ 22.500</span>
+                </div>
+                <div class="flex justify-between text-xs text-gray-600">
+                  <span>IVA (19%)</span>
+                  <span>$ 320.294</span>
+                </div>
+                <div class="h-px bg-gray-200 my-2"></div>
+                <div class="flex justify-between text-sm font-bold text-[#1B3A6B]">
+                  <span>TOTAL A PAGAR</span>
+                  <span>$ 2.017.604</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Conditions -->
+          <div class="px-8 py-4 bg-gray-50 border-t border-gray-100">
+            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-2">Condiciones de Venta</div>
+            <div class="text-[10px] text-gray-500 space-y-1">
+              <p>· Cotización válida por 30 días desde la fecha de emisión. Precios en pesos chilenos (CLP) incluyen IVA donde se indica.</p>
+              <p>· Forma de pago: Transferencia bancaria o cheque a nombre de Grupo Alfera SpA, previo a despacho.</p>
+              <p>· Despacho por Chilexpress a dirección indicada. Tiempos estándar 2-5 días hábiles según destino.</p>
+              <p>· Precios sujetos a disponibilidad de stock al momento de confirmar el pedido.</p>
+            </div>
+          </div>
+
+          <!-- PDF Footer -->
+          <div class="px-8 py-3 bg-[#1B3A6B] flex items-center justify-between">
+            <span class="text-blue-200 text-[9px]">Grupo Alfera SpA · RUT 76.543.210-8 · www.grupoalfera.cl</span>
+            <span class="text-blue-300 text-[9px]">Página 1 de 1 · COT-2026-0847</span>
+          </div>
+        </div>
+
+        <!-- Pagination hint -->
+        <div class="text-center text-xs text-gray-400 mt-4">Página 1 de 1 · Formato A4</div>
+      </div>
+
+      <!-- ===== RIGHT PANEL: metadata & actions ===== -->
+      <aside data-design-id="sidebar-actions-n4o5p6" class="w-80 flex-shrink-0 space-y-5">
+
+        <!-- Status card -->
+        <div class="bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-5">
+          <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">Estado de la Cotización</div>
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <div class="text-sm font-bold text-green-700">Generada</div>
+              <div class="text-xs text-gray-400">05 May 2026 · 14:32 hrs</div>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-500">Número</span>
+              <span class="font-mono font-semibold text-[#1B3A6B]">#COT-2026-0847</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-500">Ejecutivo</span>
+              <span class="font-medium text-gray-700">Carlos Muñoz</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-500">Cliente</span>
+              <span class="font-medium text-gray-700">Muni. Maipú</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-500">Válida hasta</span>
+              <span class="font-medium text-gray-700">04 Jun 2026</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-500">Origen</span>
+              <span class="font-medium text-[#2563EB]">Mercado Público</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Totals summary -->
+        <div class="bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-5">
+          <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">Resumen Financiero</div>
+          <div class="space-y-2.5">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Productos (9)</span>
+              <span class="font-medium">$ 1.674.810</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Despacho</span>
+              <span class="font-medium">$ 22.500</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">IVA (19%)</span>
+              <span class="font-medium">$ 320.294</span>
+            </div>
+            <div class="h-px bg-gray-100"></div>
+            <div class="flex justify-between">
+              <span class="text-base font-bold text-[#1B3A6B]">Total Final</span>
+              <span class="text-base font-bold text-[#1B3A6B]">$ 2.017.604</span>
+            </div>
+            <div class="text-xs text-gray-400 mt-1">Margen promedio: <span class="font-semibold text-green-600">24.3%</span></div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-5 space-y-3">
+          <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">Acciones</div>
+          <button data-design-id="btn-descargar-sidebar-q7r8s9" class="w-full flex items-center gap-3 bg-[#1B3A6B] hover:bg-blue-900 text-white text-sm font-semibold py-2.5 px-4 rounded-lg transition-colors">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Descargar PDF
+          </button>
+          <button data-design-id="btn-email-sidebar-t0u1v2" class="w-full flex items-center gap-3 border border-[#E2E8F0] hover:bg-gray-50 text-gray-700 text-sm font-medium py-2.5 px-4 rounded-lg transition-colors">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Enviar por email al cliente
+          </button>
+          <button data-design-id="btn-whatsapp-sidebar-w3x4y5" class="w-full flex items-center gap-3 border border-green-200 bg-green-50 hover:bg-green-100 text-green-700 text-sm font-medium py-2.5 px-4 rounded-lg transition-colors">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" class="text-green-600">
+              <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.978-1.413A9.953 9.953 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm4.93 13.97c-.207.583-1.22 1.114-1.668 1.178-.427.062-.965.088-1.557-.098-.358-.113-.82-.264-1.407-.516-2.476-1.069-4.091-3.573-4.215-3.74-.122-.167-.993-1.32-.993-2.52 0-1.197.628-1.786.85-2.028a.9.9 0 0 1 .653-.297c.163 0 .326.003.468.01.15.007.352-.057.55.42.205.49.694 1.693.755 1.816.062.122.102.267.02.43-.082.163-.122.267-.244.411-.122.144-.257.322-.367.433-.122.122-.249.253-.107.498.143.244.633 1.044 1.36 1.692.933.83 1.72 1.088 1.963 1.21.244.122.387.102.53-.061.144-.163.612-.714.776-.96.163-.244.326-.203.55-.122.224.082 1.427.673 1.671.796.244.122.407.183.468.285.061.102.061.592-.146 1.173z"/>
+            </svg>
+            Enviar por WhatsApp
+          </button>
+          <div class="h-px bg-gray-100"></div>
+          <button data-design-id="btn-editar-cot-z6a7b8" class="w-full flex items-center gap-3 border border-[#E2E8F0] hover:bg-gray-50 text-gray-600 text-sm font-medium py-2.5 px-4 rounded-lg transition-colors">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Editar cotización
+          </button>
+          <button data-design-id="btn-duplicar-cot-c9d0e1" class="w-full flex items-center gap-3 border border-[#E2E8F0] hover:bg-gray-50 text-gray-600 text-sm font-medium py-2.5 px-4 rounded-lg transition-colors">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Duplicar cotización
+          </button>
+        </div>
+
+        <!-- Activity log -->
+        <div class="bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-5">
+          <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">Actividad</div>
+          <div class="space-y-3">
+            <div class="flex gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 flex-shrink-0"></div>
+              <div>
+                <div class="text-xs font-medium text-gray-700">PDF generado</div>
+                <div class="text-xs text-gray-400">Hoy 14:32 · Carlos Muñoz</div>
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 flex-shrink-0"></div>
+              <div>
+                <div class="text-xs font-medium text-gray-700">Datos importados desde Mercado Público</div>
+                <div class="text-xs text-gray-400">Hoy 14:20 · Licitación 2320-54-COT26</div>
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-gray-300 mt-1.5 flex-shrink-0"></div>
+              <div>
+                <div class="text-xs font-medium text-gray-700">Cotización creada</div>
+                <div class="text-xs text-gray-400">Hoy 14:18 · Carlos Muñoz</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+
+    <div class="h-8"></div>
+  </main>
+
+  <footer data-design-id="footer-main-f2g3h4" class="bg-[#1B3A6B] text-blue-200 text-xs py-4 px-12 flex items-center justify-between">
+    <span>© 2026 Grupo Alfera · Sistema de Cotización v2.4</span>
+    <span>Soporte: sistemas@grupoalfera.cl · +56 2 2345 6789</span>
+  </footer>
+
+</body>
+</html>
