@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cotizador Grupo Alfera — Ingreso Manual</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    * { font-family: 'Inter', system-ui, sans-serif; }
+    .table-cell-input {
+      width: 100%; border: none; background: transparent;
+      font-size: 0.8125rem; padding: 4px 6px; outline: none;
+    }
+    .table-cell-input:focus {
+      background: #EFF6FF; outline: 2px solid #2563EB;
+      outline-offset: -2px; border-radius: 2px;
+    }
+    .calc-cell { background-color: #F0FDF4; color: #15803D; font-weight: 500; }
+    .table-row:hover td { background-color: #F8FAFC; }
+    .table-row td { border-bottom: 1px solid #E2E8F0; }
+    input[type=checkbox] { accent-color: #2563EB; }
+    .tab-active {
+      border-bottom: 3px solid #2563EB;
+      color: #1B3A6B;
+      font-weight: 600;
+    }
+    .tab-inactive {
+      border-bottom: 3px solid transparent;
+      color: #6B7280;
+    }
+    .tab-inactive:hover { color: #1B3A6B; border-bottom-color: #CBD5E1; }
+    .region-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 24 24'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 32px; }
+    .cell-active { background: #EFF6FF !important; outline: 2px solid #2563EB; outline-offset: -2px; }
+    .row-selected { background-color: #EFF6FF !important; }
+  </style>
+</head>
+<body class="w-[1440px] min-h-screen bg-[#F1F5F9]">
+
+  <!-- ===== NAVBAR ===== -->
+  <header data-design-id="header-main-a1b2c3" class="bg-[#1B3A6B] text-white shadow-lg sticky top-0 z-50">
+    <div class="px-12 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">
+          <img src="data:image/jpeg;base64,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" alt="Grupo Alfera" class="h-9 w-auto rounded-lg">
+        </div>
+        <div>
+          <div class="text-base font-bold tracking-tight leading-tight">Grupo Alfera</div>
+          <div class="text-xs text-blue-200 leading-tight">Sistema de Cotización</div>
+        </div>
+      </div>
+      <nav data-design-id="nav-top-d4e5f6" class="flex items-center gap-6">
+        <span class="text-sm text-blue-100 flex items-center gap-1.5">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
+          Carlos Muñoz
+        </span>
+        <span class="text-sm text-blue-200">Sucursal Santiago</span>
+        <button data-design-id="btn-historial-nav-e7f8g9" class="text-sm text-blue-100 hover:text-white flex items-center gap-1.5 transition-colors">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Historial
+        </button>
+        <button data-design-id="btn-nueva-cot-nav-h1i2j3" class="bg-[#F59E0B] text-[#1B3A6B] text-sm font-semibold px-4 py-1.5 rounded-lg hover:bg-amber-400 transition-colors">
+          + Nueva Cotización
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main data-design-id="main-content-k4l5m6" class="px-12 py-8 space-y-6">
+
+    <!-- Page header -->
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-[#1B3A6B]">Nueva Cotización</h1>
+        <p class="text-sm text-gray-500 mt-0.5">Modo ingreso manual — completa todos los campos directamente.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="text-right">
+          <div class="text-xs text-gray-500">N° Cotización</div>
+          <div class="text-lg font-bold text-[#1B3A6B]">#COT-2026-0848</div>
+        </div>
+        <div class="text-right">
+          <div class="text-xs text-gray-500">Fecha</div>
+          <div class="text-sm font-medium text-gray-700">05 / May / 2026</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TABS ===== -->
+    <section data-design-id="tabs-section-n7o8p9" class="bg-white rounded-xl shadow-sm border border-[#E2E8F0] overflow-hidden">
+      <!-- Tab bar -->
+      <div class="flex border-b border-[#E2E8F0] bg-gray-50 px-6">
+        <button data-design-id="btn-tab-mercado-q1r2s3" class="tab-inactive flex items-center gap-2 px-5 py-4 text-sm transition-all">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Mercado Público
+        </button>
+        <button data-design-id="btn-tab-manual-t4u5v6" class="tab-active flex items-center gap-2 px-5 py-4 text-sm transition-all">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Ingreso Manual
+        </button>
+      </div>
+      <!-- Manual tab content -->
+      <div class="p-6">
+        <div class="flex items-start gap-4 bg-blue-50 border border-blue-100 rounded-lg p-4">
+          <svg width="20" height="20" class="mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div>
+            <div class="text-sm font-semibold text-[#1B3A6B] mb-0.5">Modo Manual</div>
+            <div class="text-sm text-gray-600">Ingresa los datos del cliente directamente en el formulario. Puedes usar este modo para clientes privados o cuando el proceso no es parte de Mercado Público.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== DATOS DEL CLIENTE ===== -->
+    <section data-design-id="cliente-section-a2b3c4" class="bg-white rounded-xl shadow-sm border border-[#E2E8F0]">
+      <div class="px-6 py-4 border-b border-[#E2E8F0]">
+        <div class="flex items-center gap-2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B3A6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <h2 class="text-base font-semibold text-[#1B3A6B]">Datos del Cliente</h2>
+        </div>
+      </div>
+      <div class="p-6 grid grid-cols-3 gap-x-6 gap-y-5">
+        <!-- Row 1 -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 mb-1.5">Razón Social <span class="text-red-500">*</span></label>
+          <input type="text" placeholder="Empresa o persona natural"
+            class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 mb-1.5">RUT <span class="text-red-500">*</span></label>
+          <input type="text" placeholder="12.345.678-9"
+            class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2.5 text-sm font-mono text-gray-800 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 mb-1.5">Región <span class="text-red-500">*</span></label>
+          <select class="region-select w-full border border-[#E2E8F0] rounded-lg px-3 py-2.5 text-sm text-gray-500 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100">
+            <option value="" disabled selected>Seleccionar región…</option>
+            <option>Región Metropolitana</option>
+            <option>Región de Arica y Parinacota</option>
+            <option>Región de Tarapacá</option>
+            <option>Región de Antofagasta</option>
+            <option>Región de Atacama</option>
+            <option>Región de Coquimbo</option>
+            <option>Región de Valparaíso</option>
+            <option>Región del Libertador B. O'Higgins</option>
+            <option>Región del Maule</option>
+            <option>Región de Ñuble</option>
+            <option>Región del Biobío</option>
+            <option>Región de La Araucanía</option>
+            <option>Región de Los Ríos</option>
+            <option>Región de Los Lagos</option>
+            <option>Región de Aysén</option>
+            <option>Región de Magallanes</option>
+          </select>
+        </div>
+        <!-- Row 2 -->
+        <div class="col-span-2">
+          <label class="block text-xs font-semibold text-gray-500 mb-1.5">Dirección de Entrega</label>
+          <input type="text" placeholder="Calle, Número, Commune, Ciudad"
+            class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 mb-1.5">Validez de Cotización</label>
+          <div class="flex items-center gap-2">
+            <input type="number" value="30"
+              class="w-24 border border-[#E2E8F0] rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100">
+            <span class="text-sm text-gray-500">días</span>
+          </div>
+        </div>
+        <!-- Row 3 -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 mb-1.5">Persona de Contacto</label>
+          <input type="text" placeholder="Nombre y apellido"
+            class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 mb-1.5">Email</label>
+          <input type="email" placeholder="correo@empresa.cl"
+            class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 mb-1.5">Teléfono</label>
+          <input type="tel" placeholder="+56 9 XXXX XXXX"
+            class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100">
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TABLA PRODUCTOS (estado vacío / inicio carga) ===== -->
+    <section data-design-id="productos-section-d5e6f7" class="bg-white rounded-xl shadow-sm border border-[#E2E8F0]">
+      <div class="px-6 py-4 border-b border-[#E2E8F0] flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B3A6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          <h2 class="text-base font-semibold text-[#1B3A6B]">Productos</h2>
+          <span class="bg-gray-100 text-gray-500 text-xs font-semibold px-2 py-0.5 rounded-full">3 ítems</span>
+        </div>
+        <!-- Toolbar -->
+        <div class="flex items-center gap-3">
+          <!-- Bulk delete -->
+          <button data-design-id="btn-eliminar-sel-c8d9e0" class="text-sm text-red-500 hover:text-red-700 font-medium flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-red-100 hover:bg-red-50 transition-colors">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            Eliminar selección
+          </button>
+          <div class="w-px h-5 bg-gray-200"></div>
+          <div class="flex items-center gap-2 text-sm text-gray-600">
+            <span class="font-medium">% Utilidad global:</span>
+            <input type="number" value="25" class="w-16 border border-[#E2E8F0] rounded-md px-2 py-1 text-sm text-center focus:outline-none focus:border-[#2563EB] font-semibold text-[#1B3A6B]">
+            <span class="text-gray-400">%</span>
+            <button data-design-id="btn-aplicar-utilidad-g8h9i0" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-md border border-gray-200 transition-colors">
+              Aplicar a todos
+            </button>
+          </div>
+          <div class="w-px h-5 bg-gray-200"></div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-600">Agregar</span>
+            <input type="number" value="5" class="w-14 border border-[#E2E8F0] rounded-md px-2 py-1 text-sm text-center focus:outline-none focus:border-[#2563EB]">
+            <span class="text-sm text-gray-600">fila(s)</span>
+            <button data-design-id="btn-agregar-filas-j1k2l3" class="bg-[#2563EB] hover:bg-blue-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Agregar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paste hint banner -->
+      <div class="mx-6 mt-4 mb-1 flex items-center gap-3 bg-blue-50 border border-blue-100 rounded-lg px-4 py-2.5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+        <span class="text-xs text-blue-700 font-medium">Tip: Puedes pegar datos directamente desde Excel u otra planilla con Ctrl+V en cualquier celda de la tabla.</span>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto mt-3">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="bg-[#1B3A6B] text-white">
+              <th class="w-10 px-3 py-3 text-center">
+                <input type="checkbox" class="rounded">
+              </th>
+              <th class="px-3 py-3 text-left text-xs font-semibold tracking-wide whitespace-nowrap" style="min-width:220px">
+                Nombre del producto
+              </th>
+              <th class="px-3 py-3 text-right text-xs font-semibold tracking-wide whitespace-nowrap" style="min-width:130px">
+                Precio Compra c/IVA
+              </th>
+              <th class="px-3 py-3 text-center text-xs font-semibold tracking-wide" style="min-width:80px">
+                Cant.
+              </th>
+              <th class="px-3 py-3 text-center text-xs font-semibold tracking-wide" style="min-width:90px">
+                % Utilidad
+                <div class="text-blue-200 font-normal text-[10px]">(sobre neto)</div>
+              </th>
+              <th class="px-3 py-3 text-left text-xs font-semibold tracking-wide" style="min-width:160px">
+                URL Compra
+              </th>
+              <th class="px-3 py-3 text-right text-xs font-semibold tracking-wide whitespace-nowrap" style="min-width:110px">
+                Venta Neto
+              </th>
+              <th class="px-3 py-3 text-right text-xs font-semibold tracking-wide whitespace-nowrap" style="min-width:110px">
+                Venta c/IVA
+              </th>
+              <th class="px-3 py-3 text-right text-xs font-semibold tracking-wide" style="min-width:110px">
+                Total
+              </th>
+              <th class="w-10 px-3 py-3"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Row 1 active editing state -->
+            <tr class="table-row row-selected">
+              <td class="px-3 py-2 text-center border-b border-[#E2E8F0]"><input type="checkbox" checked></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100">
+                <input class="table-cell-input cell-active" type="text" value="Disco Corte Metal 4-1/2" Makita" autofocus>
+              </td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-right" type="text" value="$ 2.100"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" value="100"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" value="25"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-blue-600" type="url" placeholder="https://..."></td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right calc-cell text-xs">$ 2.150</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right calc-cell text-xs">$ 2.558</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right font-semibold text-[#1B3A6B] text-xs">$ 255.800</td>
+              <td class="border-b border-[#E2E8F0] px-2 py-2 text-center">
+                <button data-design-id="btn-del-row1-m4n5o6" class="text-gray-300 hover:text-red-400 transition-colors">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                </button>
+              </td>
+            </tr>
+            <!-- Row 2 -->
+            <tr class="table-row bg-[#F8FAFC]">
+              <td class="px-3 py-2 text-center border-b border-[#E2E8F0]"><input type="checkbox" checked></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input" type="text" value="Sierra Circular Bosch GKS 165"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-right" type="text" value="$ 89.900"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" value="3"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" value="18"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-blue-600" type="url" value="bosch.cl/gks165"></td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right calc-cell text-xs">$ 88.118</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right calc-cell text-xs">$ 104.860</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right font-semibold text-[#1B3A6B] text-xs">$ 314.580</td>
+              <td class="border-b border-[#E2E8F0] px-2 py-2 text-center">
+                <button data-design-id="btn-del-row2-p7q8r9" class="text-gray-300 hover:text-red-400 transition-colors">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                </button>
+              </td>
+            </tr>
+            <!-- Row 3 -->
+            <tr class="table-row">
+              <td class="px-3 py-2 text-center border-b border-[#E2E8F0]"><input type="checkbox"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input" type="text" value="Taladro Percutor DeWalt DCD776"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-right" type="text" value="$ 124.900"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" value="2"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" value="20"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-blue-600" type="url" value=""></td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right calc-cell text-xs">$ 125.084</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right calc-cell text-xs">$ 148.850</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right font-semibold text-[#1B3A6B] text-xs">$ 297.700</td>
+              <td class="border-b border-[#E2E8F0] px-2 py-2 text-center">
+                <button data-design-id="btn-del-row3-s1t2u3" class="text-gray-300 hover:text-red-400 transition-colors">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                </button>
+              </td>
+            </tr>
+            <!-- Empty rows 4-12 -->
+            <tr class="table-row bg-[#F8FAFC]">
+              <td class="px-3 py-2 text-center border-b border-[#E2E8F0]"><input type="checkbox"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input" type="text" placeholder="Nombre del producto..."></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-right" type="text" placeholder="$ 0"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" placeholder="1"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" placeholder="25"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-blue-600" type="url" placeholder="https://..."></td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-2 py-2"></td>
+            </tr>
+            <tr class="table-row">
+              <td class="px-3 py-2 text-center border-b border-[#E2E8F0]"><input type="checkbox"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input" type="text" placeholder="Nombre del producto..."></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-right" type="text" placeholder="$ 0"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" placeholder="1"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" placeholder="25"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-blue-600" type="url" placeholder="https://..."></td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-2 py-2"></td>
+            </tr>
+            <tr class="table-row bg-[#F8FAFC]">
+              <td class="px-3 py-2 text-center border-b border-[#E2E8F0]"><input type="checkbox"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input" type="text" placeholder="Nombre del producto..."></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-right" type="text" placeholder="$ 0"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" placeholder="1"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" placeholder="25"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-blue-600" type="url" placeholder="https://..."></td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-2 py-2"></td>
+            </tr>
+            <tr class="table-row">
+              <td class="px-3 py-2 text-center border-b border-[#E2E8F0]"><input type="checkbox"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input" type="text" placeholder="Nombre del producto..."></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-right" type="text" placeholder="$ 0"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" placeholder="1"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" placeholder="25"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-blue-600" type="url" placeholder="https://..."></td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-2 py-2"></td>
+            </tr>
+            <tr class="table-row bg-[#F8FAFC]">
+              <td class="px-3 py-2 text-center border-b border-[#E2E8F0]"><input type="checkbox"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input" type="text" placeholder="Nombre del producto..."></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-right" type="text" placeholder="$ 0"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" placeholder="1"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" placeholder="25"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-blue-600" type="url" placeholder="https://..."></td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-2 py-2"></td>
+            </tr>
+            <tr class="table-row">
+              <td class="px-3 py-2 text-center border-b border-[#E2E8F0]"><input type="checkbox"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input" type="text" placeholder="Nombre del producto..."></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-right" type="text" placeholder="$ 0"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" placeholder="1"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" placeholder="25"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-blue-600" type="url" placeholder="https://..."></td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-2 py-2"></td>
+            </tr>
+            <tr class="table-row bg-[#F8FAFC]">
+              <td class="px-3 py-2 text-center border-b border-[#E2E8F0]"><input type="checkbox"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input" type="text" placeholder="Nombre del producto..."></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-right" type="text" placeholder="$ 0"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" placeholder="1"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-center" type="number" placeholder="25"></td>
+              <td class="border-b border-[#E2E8F0] border-r border-r-gray-100"><input class="table-cell-input text-blue-600" type="url" placeholder="https://..."></td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-3 py-2 text-right text-gray-300 text-xs">—</td>
+              <td class="border-b border-[#E2E8F0] px-2 py-2"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Footer subtotals -->
+      <div class="px-6 py-4 border-t border-[#E2E8F0] flex items-center justify-between bg-gray-50">
+        <div class="text-xs text-gray-400 flex items-center gap-1.5">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Las celdas en verde se calculan automáticamente. La utilidad se aplica sobre el precio neto (sin IVA).
+        </div>
+        <div class="flex items-center gap-8">
+          <div class="text-right">
+            <div class="text-xs text-gray-500">Subtotal Neto</div>
+            <div class="text-base font-semibold text-gray-700">$ 718.421</div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs text-gray-500">IVA (19%)</div>
+            <div class="text-base font-semibold text-gray-700">$ 136.500</div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs text-gray-500">Total c/IVA</div>
+            <div class="text-xl font-bold text-[#1B3A6B]">$ 854.921</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== DESPACHO ===== -->
+    <section data-design-id="despacho-section-n3o4p5" class="bg-white rounded-xl shadow-sm border border-[#E2E8F0]">
+      <div class="px-6 py-4 border-b border-[#E2E8F0] flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B3A6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          <h2 class="text-base font-semibold text-[#1B3A6B]">Despacho</h2>
+          <span class="bg-amber-50 text-amber-600 text-xs font-medium px-2 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
+            <svg class="animate-spin" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+            Calculando automáticamente…
+          </span>
+        </div>
+        <button data-design-id="btn-recalcular-q6r7s8" class="text-sm text-[#2563EB] font-medium flex items-center gap-1.5 hover:text-blue-800 transition-colors opacity-50 cursor-not-allowed">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Recalcular
+        </button>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-5 gap-6 items-start">
+          <div class="col-span-2">
+            <label class="block text-xs font-semibold text-gray-500 mb-1.5">Destino / Ciudad <span class="text-red-500">*</span></label>
+            <input type="text" placeholder="Ej: Concepción, La Serena…"
+              class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100">
+            <p class="text-xs text-gray-400 mt-1">Se calculará automáticamente al completar el campo</p>
+          </div>
+          <!-- Pending state -->
+          <div class="col-span-3 grid grid-cols-4 gap-3">
+            <div class="bg-gray-50 rounded-lg p-3 border border-dashed border-gray-200">
+              <div class="text-xs text-gray-400 mb-1">Peso estimado</div>
+              <div class="h-5 bg-gray-200 rounded animate-pulse w-16"></div>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3 border border-dashed border-gray-200">
+              <div class="text-xs text-gray-400 mb-1">Peso volumétrico</div>
+              <div class="h-5 bg-gray-200 rounded animate-pulse w-16"></div>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3 border border-dashed border-gray-200">
+              <div class="text-xs text-gray-400 mb-1">Costo envío</div>
+              <div class="h-5 bg-gray-200 rounded animate-pulse w-20"></div>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3 border border-dashed border-gray-200">
+              <div class="text-xs text-gray-400 mb-1">Valor sugerido</div>
+              <div class="h-5 bg-gray-200 rounded animate-pulse w-20"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== NOTAS + CTA ===== -->
+    <section data-design-id="footer-actions-t9u0v1" class="grid grid-cols-3 gap-6">
+      <div class="col-span-2 bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-6">
+        <label class="block text-xs font-semibold text-gray-500 mb-2">Notas internas / Observaciones (opcional)</label>
+        <textarea rows="4" placeholder="Condiciones especiales, descuentos acordados, instrucciones de entrega..."
+          class="w-full border border-[#E2E8F0] rounded-lg px-3 py-2.5 text-sm text-gray-700 resize-none focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"></textarea>
+        <p class="text-xs text-gray-400 mt-1.5">Estas notas no aparecerán en el PDF enviado al cliente.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-6 flex flex-col justify-between">
+        <div>
+          <div class="text-xs font-semibold text-gray-500 mb-3">Resumen de cotización</div>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Productos</span>
+              <span class="font-medium text-gray-800">3 ítems</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Total neto</span>
+              <span class="font-medium text-gray-800">$ 718.421</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Despacho</span>
+              <span class="font-medium text-amber-600">Calculando…</span>
+            </div>
+            <div class="flex justify-between border-t border-gray-100 pt-2">
+              <span class="font-semibold text-[#1B3A6B]">Total final c/IVA</span>
+              <span class="font-bold text-gray-400">Pendiente</span>
+            </div>
+          </div>
+        </div>
+        <button data-design-id="btn-generar-pdf-w2x3y4" class="w-full mt-5 bg-[#F59E0B] hover:bg-amber-400 text-[#1B3A6B] font-bold py-3.5 rounded-xl flex items-center justify-center gap-2.5 text-base shadow-md transition-colors">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Generar Cotización PDF
+        </button>
+        <p class="text-xs text-center text-gray-400 mt-2">También guardará como borrador automáticamente</p>
+      </div>
+    </section>
+
+    <div class="h-8"></div>
+  </main>
+
+  <footer data-design-id="footer-main-z5a6b7" class="bg-[#1B3A6B] text-blue-200 text-xs py-4 px-12 flex items-center justify-between">
+    <span>© 2026 Grupo Alfera · Sistema de Cotización v2.4</span>
+    <span>Soporte: sistemas@grupoalfera.cl · +56 2 2345 6789</span>
+  </footer>
+
+</body>
+</html>
