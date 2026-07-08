@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso - Grupo Alfera</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: #0066cc;
+            margin-bottom: 10px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="email"]:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #0052a3;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .info {
+            background: #f0f4ff;
+            border-left: 4px solid #0066cc;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #333;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f0f0f0;
+            border-top: 3px solid #0066cc;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="header">
+            <div class="logo">🔐</div>
+            <h1 class="title">Grupo Alfera</h1>
+            <p class="subtitle">Acceso a Fichas Técnicas</p>
+        </div>
+
+        <div class="error" id="errorMsg"></div>
+
+        <form id="loginForm" style="display: block;">
+            <div class="form-group">
+                <label for="email">Correo Electrónico</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    placeholder="tu.correo@ejemplo.com"
+                    required
+                    autocomplete="email"
+                >
+            </div>
+
+            <button type="submit">Acceder</button>
+
+            <div class="info">
+                💡 Ingresa tu correo corporativo para acceder a la ficha técnica.
+            </div>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px; color: #666;">Validando acceso...</p>
+        </div>
+
+        <div class="footer">
+            Grupo Alfera © 2026 | Acceso Seguro
+        </div>
+    </div>
+
+    <script>
+        // Lista de correos autorizados
+        const AUTHORIZED_EMAILS = [
+            'cotizacionesmpiv@gmail.com',
+            'cotizadoralili@gmail.com',
+            'alex.uribej@gmail.com',
+            'flo.zepeda.freelance@gmail.com',
+            'franciscogrupoalfera@gmail.com',
+            'isita334@gmail.com',
+            'odara.v2026@gmail.com',
+            'soledadcotiza@gmail.com',
+            'soledoggenweiler@gmail.com',
+            'valentina.cot.freelance@gmail.com',
+            'valepinochetcotizaciones@gmail.com',
+            'ffgonzalez@uc.cl',
+            'fgdoggenweiler14@gmail.com'
+        ];
+
+        // URL de destino (la página de fichas técnicas)
+        const REDIRECT_URL = 'https://grupoalfera.cl/Alfera_FichaTecnica.html';
+
+        const form = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const errorMsg = document.getElementById('errorMsg');
+        const loading = document.getElementById('loading');
+
+        // Revisar si ya hay sesión activa
+        window.addEventListener('load', () => {
+            const savedEmail = sessionStorage.getItem('grupoalfera_user');
+            if (savedEmail) {
+                // Usuario ya tiene sesión activa, redirige
+                window.location.href = REDIRECT_URL;
+            }
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = emailInput.value.toLowerCase().trim();
+
+            // Limpiar errores
+            errorMsg.classList.remove('show');
+
+            // Validar formato de email
+            if (!email.includes('@')) {
+                showError('Por favor ingresa un correo válido.');
+                return;
+            }
+
+            // Mostrar loading
+            form.style.display = 'none';
+            loading.style.display = 'block';
+
+            // Simular validación (con pequeño delay para UX)
+            setTimeout(() => {
+                if (AUTHORIZED_EMAILS.includes(email)) {
+                    // Correo autorizado - guardar sesión y redirigir
+                    sessionStorage.setItem('grupoalfera_user', email);
+                    window.location.href = REDIRECT_URL;
+                } else {
+                    // Correo no autorizado
+                    loading.style.display = 'none';
+                    form.style.display = 'block';
+                    showError('Lo sentimos. Este correo no está autorizado para acceder.');
+                    emailInput.focus();
+                }
+            }, 800);
+        });
+
+        function showError(message) {
+            errorMsg.textContent = message;
+            errorMsg.classList.add('show');
+        }
+
+        // Auto-focus en el input al cargar
+        emailInput.focus();
+    </script>
+</body>
+</html>
