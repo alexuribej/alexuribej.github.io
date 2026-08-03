@@ -531,7 +531,7 @@ Cada sección debe tener entre 3 y 8 filas con datos reales y útiles.`;
 
   // Limpiar markdown si viene
   texto = texto.replace(/```json/g,'').replace(/```/g,'').trim();
-  return JSON.parse(texto);
+  return { ...JSON.parse(texto), imageUrl: data.imageUrl || '' };
 }
 
 function renderFicha(d, imgs) {
