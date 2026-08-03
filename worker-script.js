@@ -11,9 +11,12 @@ export default {
     }
 
     if (request.method !== 'POST') {
-      return new Response('Method not allowed', {
+      return new Response(JSON.stringify({error: 'Method not allowed'}), {
         status: 405,
-        headers: { 'Access-Control-Allow-Origin': '*' }
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
       });
     }
 
@@ -39,7 +42,7 @@ export default {
         text: `Eres un experto en tecnología. Analiza este producto desde la URL: ${url}. Genera una ficha técnica profesional en español con especificaciones técnicas detalladas, características principales y usos recomendados.`
       });
 
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      const apiResponse = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,7 +56,18 @@ export default {
         })
       });
 
-      const data = await response.json();
+      const data = await apiResponse.json();
+
+      if (data.error) {
+        return new Response(JSON.stringify({
+          content: [{ text: `Error de API: ${data.error.message}` }]
+        }), {
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+      }
 
       return new Response(JSON.stringify(data), {
         headers: {
@@ -63,7 +77,9 @@ export default {
       });
 
     } catch (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
+      return new Response(JSON.stringify({
+        content: [{ text: `Error: ${error.message}` }]
+      }), {
         status: 500,
         headers: {
           'Content-Type': 'application/json',
