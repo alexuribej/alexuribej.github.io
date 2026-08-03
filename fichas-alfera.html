@@ -398,7 +398,7 @@ async function generarFichas() {
   for (const prod of productos) {
     try {
       const ficha = await analizarProducto(prod.link);
-      renderFicha(ficha, prod.imgs);
+      renderFicha(ficha, prod.imgs.length ? prod.imgs : (ficha.imageUrl ? [ficha.imageUrl] : []));
     } catch(e) {
       mostrarError('Error al procesar: ' + prod.link + ' — ' + e.message);
     }
