@@ -24,6 +24,27 @@
     align-items: center;
     padding: 30px 16px;
   }
+  body.auth-required .panel,
+  body.auth-required #fichas-container,
+  body.auth-required .loading { display: none !important; }
+  #login-panel {
+    display: none; background: white; border-radius: 16px; padding: 36px;
+    max-width: 460px; width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+  body.auth-required #login-panel { display: block; }
+  #login-panel h1 { color: var(--azul); font-size: 1.4rem; margin-bottom: 8px; }
+  #login-panel p { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
+  #login-panel input {
+    width: 100%; padding: 11px 14px; border: 1.5px solid #dde3ed;
+    border-radius: 8px; font: inherit; outline: none;
+  }
+  #login-panel input:focus { border-color: var(--acento); }
+  #login-panel button {
+    width: 100%; padding: 12px; margin-top: 12px; border: 0; border-radius: 8px;
+    background: var(--azul2); color: white; font: inherit; font-weight: 600; cursor: pointer;
+  }
+  #login-error { display: none; color: #b91c1c; font-size: 0.85rem; margin-top: 12px; }
+  #login-error.active { display: block; }
 
   /* ── PANEL DE INGRESO ── */
   .panel {
@@ -283,7 +304,17 @@
   }
 </style>
 </head>
-<body>
+<body class="auth-required">
+
+<section id="login-panel">
+  <h1>Grupo Alfera</h1>
+  <p>Ingresa tu correo para acceder a las fichas técnicas.</p>
+  <form id="login-form">
+    <input id="login-email" type="email" placeholder="tu.correo@ejemplo.com" autocomplete="email" required>
+    <button id="login-button" type="submit">Acceder</button>
+  </form>
+  <div id="login-error" role="alert"></div>
+</section>
 
 <!-- Panel ingreso -->
 <div class="panel">
@@ -330,8 +361,34 @@
 
 <script>
 const WORKER_URL = 'https://alfera-proxy.alex-uribej.workers.dev/';
+const EXECUTIVES_ENDPOINT = 'https://alexuribe-automatizacion.3wlqzr.easypanel.host/auth/validate-executive';
 let productCount = 1;
 let imagesByProduct = {}; // { idx: [dataURL, ...] }
+
+document.getElementById('login-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const button = document.getElementById('login-button');
+  const error = document.getElementById('login-error');
+  button.disabled = true;
+  error.classList.remove('active');
+
+  try {
+    const response = await fetch(EXECUTIVES_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ email }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.active) throw new Error('Este correo no está autorizado.');
+    document.body.classList.remove('auth-required');
+  } catch (err) {
+    error.textContent = err.message || 'No se pudo validar el acceso.';
+    error.classList.add('active');
+  } finally {
+    button.disabled = false;
+  }
+});
 
 function addProducto() {
   const idx = productCount++;
