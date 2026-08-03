@@ -102,11 +102,6 @@
             transform: scale(0.98);
         }
 
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
         .error {
             background: #fee;
             border: 1px solid #fcc;
@@ -184,7 +179,7 @@
                 >
             </div>
 
-            <button type="submit" id="submitBtn">Acceder</button>
+            <button type="submit">Acceder</button>
 
             <div class="info">
                 💡 Ingresa tu correo corporativo para acceder a la ficha técnica.
@@ -202,13 +197,22 @@
     </div>
 
     <script>
-        // ============================================================
-        // FUENTE DE VERDAD: Google Sheet publicado como CSV
-        // Para agregar/quitar ejecutivos, edita el Sheet directamente
-        // (columna ESTADO = ACTIVO o INACTIVO). No es necesario tocar
-        // este archivo nunca más.
-        // ============================================================
-        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDyQaaEkfcFdRdCrvuSAQxNxT_kx4D_HtEeKkT7Pcj18OcvtbfiW_q9dYIp06gXmvkq385LJLV_a06/pub?gid=0&single=true&output=csv';
+        // Lista de correos autorizados
+        const AUTHORIZED_EMAILS = [
+            'cotizacionesmpiv@gmail.com',
+            'cotizadoralili@gmail.com',
+            'alex.uribej@gmail.com',
+            'flo.zepeda.freelance@gmail.com',
+            'franciscogrupoalfera@gmail.com',
+            'isita334@gmail.com',
+            'odara.v2026@gmail.com',
+            'soledadcotiza@gmail.com',
+            'soledoggenweiler@gmail.com',
+            'valentina.cot.freelance@gmail.com',
+            'valepinochetcotizaciones@gmail.com',
+            'ffgonzalez@uc.cl',
+            'fgdoggenweiler14@gmail.com'
+        ];
 
         // URL DE REDIRECCIÓN CORRECTA - CAMBIAR SI ES NECESARIO
         const REDIRECT_URL = 'https://alexuribej.github.io/fichas-alfera.html';
@@ -217,103 +221,47 @@
         const emailInput = document.getElementById('email');
         const errorMsg = document.getElementById('errorMsg');
         const loading = document.getElementById('loading');
-        const submitBtn = document.getElementById('submitBtn');
-
-        // Parser CSV simple, tolera comillas y comas dentro de campos
-        function parseCSV(text) {
-            const rows = [];
-            let row = [];
-            let field = '';
-            let inQuotes = false;
-
-            for (let i = 0; i < text.length; i++) {
-                const char = text[i];
-                const next = text[i + 1];
-
-                if (inQuotes) {
-                    if (char === '"' && next === '"') { field += '"'; i++; }
-                    else if (char === '"') { inQuotes = false; }
-                    else { field += char; }
-                } else {
-                    if (char === '"') { inQuotes = true; }
-                    else if (char === ',') { row.push(field); field = ''; }
-                    else if (char === '\n' || char === '\r') {
-                        if (char === '\r' && next === '\n') i++;
-                        row.push(field);
-                        rows.push(row);
-                        row = [];
-                        field = '';
-                    } else {
-                        field += char;
-                    }
-                }
-            }
-            if (field.length > 0 || row.length > 0) {
-                row.push(field);
-                rows.push(row);
-            }
-            return rows.filter(r => r.some(cell => cell.trim() !== ''));
-        }
-
-        // Descarga y evalúa el estado de un correo contra el Sheet en vivo
-        async function checkEmailStatus(email) {
-            const response = await fetch(SHEET_CSV_URL + '&t=' + Date.now(), { cache: 'no-store' });
-            if (!response.ok) throw new Error('No se pudo leer la planilla');
-            const text = await response.text();
-            const rows = parseCSV(text);
-
-            // Se asume: col 0 = NOMBRE, col 1 = CORREO, col 2 = ESTADO
-            // Se ignora la primera fila (encabezados)
-            for (let i = 1; i < rows.length; i++) {
-                const cols = rows[i];
-                const correo = (cols[1] || '').trim().toLowerCase();
-                const estado = (cols[2] || '').trim().toUpperCase();
-                if (correo === email) {
-                    return estado === 'ACTIVO';
-                }
-            }
-            return false; // correo no encontrado en la planilla
-        }
 
         // Revisar si ya hay sesión activa
         window.addEventListener('load', () => {
             const savedEmail = sessionStorage.getItem('grupoalfera_user');
             if (savedEmail) {
+                // Usuario ya tiene sesión activa, redirige
                 window.location.href = REDIRECT_URL;
             }
         });
 
-        form.addEventListener('submit', async (e) => {
+        form.addEventListener('submit', (e) => {
             e.preventDefault();
             const email = emailInput.value.toLowerCase().trim();
 
+            // Limpiar errores
             errorMsg.classList.remove('show');
 
+            // Validar formato de email
             if (!email.includes('@')) {
                 showError('Por favor ingresa un correo válido.');
                 return;
             }
 
+            // Mostrar loading
             form.style.display = 'none';
             loading.style.display = 'block';
 
-            try {
-                const isActive = await checkEmailStatus(email);
-                if (isActive) {
+            // Simular validación (con pequeño delay para UX)
+            setTimeout(() => {
+                if (AUTHORIZED_EMAILS.includes(email)) {
+                    // Correo autorizado - guardar sesión y redirigir
                     sessionStorage.setItem('grupoalfera_user', email);
                     window.location.href = REDIRECT_URL;
                 } else {
+                    // Correo no autorizado
                     loading.style.display = 'none';
                     form.style.display = 'block';
                     showError('Lo sentimos. Este correo no está autorizado para acceder.');
                     emailInput.focus();
                 }
-            } catch (err) {
-                loading.style.display = 'none';
-                form.style.display = 'block';
-                showError('No se pudo validar el acceso en este momento. Intenta nuevamente.');
-                console.error(err);
-            }
+            }, 800);
         });
 
         function showError(message) {
@@ -321,6 +269,7 @@
             errorMsg.classList.add('show');
         }
 
+        // Auto-focus en el input al cargar
         emailInput.focus();
     </script>
 </body>
