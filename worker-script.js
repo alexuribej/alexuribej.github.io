@@ -7,6 +7,48 @@ const BROWSER_TIMEOUT_MS = 25000;
 const USER_AGENT = 'Mozilla/5.0 (compatible; GrupoAlferaFicha/2.0)';
 const PRIVATE_HOST_PATTERN = /^(?:localhost\.?|127\.|0\.0\.0\.0|10\.|192\.168\.|172\.(?:1[6-9]|2\d|3[0-1])\.)/i;
 const VALID_SECTION_COLORS = new Set(['s1', 's2', 's3', 's4', 's5', 's6']);
+const PRODUCT_JSON_SCHEMA = {
+  type: 'object',
+  properties: {
+    nombre: { type: 'string' },
+    marca: { type: 'string' },
+    condicion: { type: 'string' },
+    descripcion: { type: 'string' },
+    tipo: { type: 'string' },
+    specs_rapidos: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { campo: { type: 'string' }, valor: { type: 'string' } },
+        required: ['campo', 'valor'],
+        additionalProperties: false,
+      },
+    },
+    secciones: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          titulo: { type: 'string' },
+          color: { type: 'string', enum: ['s1', 's2', 's3', 's4', 's5', 's6'] },
+          filas: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: { campo: { type: 'string' }, valor: { type: 'string' } },
+              required: ['campo', 'valor'],
+              additionalProperties: false,
+            },
+          },
+        },
+        required: ['titulo', 'color', 'filas'],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ['nombre', 'marca', 'condicion', 'descripcion', 'tipo', 'specs_rapidos', 'secciones'],
+  additionalProperties: false,
+};
 
 const PRODUCT_JSON_INSTRUCTION = `Devuelve exclusivamente un objeto JSON válido con esta estructura exacta:
 {
@@ -15,7 +57,7 @@ const PRODUCT_JSON_INSTRUCTION = `Devuelve exclusivamente un objeto JSON válido
   "condicion": "string",
   "descripcion": "string",
   "tipo": "string",
-  "specs_rapidos": { "campo": "valor" },
+  "specs_rapidos": [{ "campo": "string", "valor": "string" }],
   "secciones": [
     {
       "titulo": "string",
@@ -278,12 +320,7 @@ async function requestDeepSeekProduct({ apiKey, prompt, pageText }) {
     throw new HttpError(502, 'DeepSeek no devolvió el producto estructurado');
   }
 
-  let parsed;
-  try {
-    parsed = JSON.parse(content);
-  } catch {
-    throw new HttpError(502, 'DeepSeek devolvió JSON inválido');
-  }
+  const parsed = parseJsonObject(content, 'DeepSeek');
 
   return {
     apiData,
@@ -304,6 +341,12 @@ async function requestAnthropicProduct({ apiKey, prompt, pageText }) {
       model: ANTHROPIC_MODEL,
       max_tokens: 2048,
       system: PRODUCT_JSON_INSTRUCTION,
+      output_config: {
+        format: {
+          type: 'json_schema',
+          schema: PRODUCT_JSON_SCHEMA,
+        },
+      },
       messages: [
         {
           role: 'user',
@@ -336,12 +379,7 @@ async function requestAnthropicProduct({ apiKey, prompt, pageText }) {
     throw new HttpError(502, 'Anthropic no devolvió el producto estructurado');
   }
 
-  let parsed;
-  try {
-    parsed = JSON.parse(content);
-  } catch {
-    throw new HttpError(502, 'Anthropic devolvió JSON inválido');
-  }
+  const parsed = parseJsonObject(content, 'Anthropic');
 
   return {
     apiData,
@@ -365,10 +403,15 @@ function validateProductPayload(value) {
     secciones: [],
   };
 
-  if (!isPlainObject(value.specs_rapidos)) {
-    throw new HttpError(502, 'specs_rapidos debe ser un objeto');
+  const quickSpecs = Array.isArray(value.specs_rapidos)
+    ? value.specs_rapidos.map((item) => [item?.campo, item?.valor])
+    : isPlainObject(value.specs_rapidos)
+      ? Object.entries(value.specs_rapidos)
+      : null;
+  if (!quickSpecs) {
+    throw new HttpError(502, 'specs_rapidos debe ser un objeto o un array');
   }
-  for (const [field, fieldValue] of Object.entries(value.specs_rapidos).slice(0, 8)) {
+  for (const [field, fieldValue] of quickSpecs.slice(0, 8)) {
     const name = cleanString(field);
     const content = cleanString(fieldValue);
     if (name && content) product.specs_rapidos[name] = content;
@@ -417,6 +460,30 @@ function cleanString(value) {
 
 function isPlainObject(value) {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function parseJsonObject(value, provider) {
+  const text = String(value || '').replace(/^\uFEFF/, '').trim();
+  const withoutFence = text
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim();
+  const firstBrace = withoutFence.indexOf('{');
+  const lastBrace = withoutFence.lastIndexOf('}');
+  const candidates = [text, withoutFence];
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    candidates.push(withoutFence.slice(firstBrace, lastBrace + 1));
+  }
+
+  for (const candidate of [...new Set(candidates)]) {
+    try {
+      const parsed = JSON.parse(candidate);
+      if (isPlainObject(parsed)) return parsed;
+    } catch {
+      // Probamos la siguiente forma tolerante.
+    }
+  }
+  throw new HttpError(502, `${provider} devolvió JSON inválido`);
 }
 
 function jsonResponse(payload, status, headers) {

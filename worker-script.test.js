@@ -182,9 +182,16 @@ test('usa Anthropic Haiku cuando DeepSeek falla', async () => {
       return Response.json({ error: { message: 'Insufficient Balance' } }, { status: 402 });
     }
     if (String(url).startsWith('https://api.anthropic.com/')) {
+      const anthropicProduct = {
+        ...validProduct,
+        specs_rapidos: [
+          { campo: 'Resolución', valor: '4K' },
+          { campo: 'Puertos', valor: 'HDMI' },
+        ],
+      };
       return Response.json({
         model: 'claude-haiku-4-5-20251001',
-        content: [{ type: 'text', text: JSON.stringify(validProduct) }],
+        content: [{ type: 'text', text: `Aquí tienes:\n\`\`\`json\n${JSON.stringify(anthropicProduct)}\n\`\`\`` }],
       });
     }
     throw new Error(`URL inesperada: ${url}`);
@@ -222,6 +229,12 @@ test('usa Anthropic Haiku cuando DeepSeek falla', async () => {
     const anthropicBody = JSON.parse(apiRequests[1].options.body);
     assert.equal(anthropicBody.model, 'claude-haiku-4-5-20251001');
     assert.equal(apiRequests[1].options.headers['x-api-key'], 'anthropic-test-key');
+    assert.equal(anthropicBody.output_config.format.type, 'json_schema');
+    assert.equal(anthropicBody.output_config.format.schema.additionalProperties, false);
+    assert.deepEqual(
+      anthropicBody.output_config.format.schema.required,
+      ['nombre', 'marca', 'condicion', 'descripcion', 'tipo', 'specs_rapidos', 'secciones'],
+    );
   } finally {
     globalThis.fetch = originalFetch;
   }
