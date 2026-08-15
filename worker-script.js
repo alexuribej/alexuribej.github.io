@@ -1,5 +1,7 @@
 const DEEPSEEK_ENDPOINT = 'https://api.deepseek.com/chat/completions';
 const DEEPSEEK_MODEL = 'deepseek-v4-flash';
+const ANTHROPIC_ENDPOINT = 'https://api.anthropic.com/v1/messages';
+const ANTHROPIC_MODEL = 'claude-haiku-4-5-20251001';
 const PAGE_TEXT_LIMIT = 12000;
 const BROWSER_TIMEOUT_MS = 25000;
 const USER_AGENT = 'Mozilla/5.0 (compatible; GrupoAlferaFicha/2.0)';
@@ -40,8 +42,9 @@ export default {
     }
 
     try {
-      if (!env.DEEPSEEK_API_KEY) {
-        return jsonResponse({ error: 'Falta configurar DEEPSEEK_API_KEY' }, 500, headers);
+      const anthropicApiKey = env.ANTHROPIC_KEY || env.ANTHROPIC_API_KEY;
+      if (!env.DEEPSEEK_API_KEY && !anthropicApiKey) {
+        return jsonResponse({ error: 'Falta configurar DEEPSEEK_API_KEY o ANTHROPIC_KEY' }, 500, headers);
       }
 
       const body = await request.json();
@@ -53,17 +56,19 @@ export default {
 
       const productUrl = validatePublicUrl(rawUrl);
       const page = await extractProductPage(productUrl, env);
-      const deepseek = await requestStructuredProduct({
-        apiKey: env.DEEPSEEK_API_KEY,
+      const completion = await requestProductWithFallback({
+        deepseekApiKey: env.DEEPSEEK_API_KEY,
+        anthropicApiKey,
         prompt,
         pageText: page.pageText,
       });
 
       return jsonResponse(
         {
-          ...deepseek.apiData,
-          content: [{ type: 'text', text: JSON.stringify(deepseek.product) }],
-          product: deepseek.product,
+          ...completion.apiData,
+          content: [{ type: 'text', text: JSON.stringify(completion.product) }],
+          product: completion.product,
+          provider: completion.provider,
           imageUrl: page.imageUrl,
           renderedWithBrowser: page.renderedWithBrowser,
         },
@@ -203,7 +208,35 @@ function decodeHtmlEntities(value) {
     .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(parseInt(code, 16)));
 }
 
-async function requestStructuredProduct({ apiKey, prompt, pageText }) {
+async function requestProductWithFallback({ deepseekApiKey, anthropicApiKey, prompt, pageText }) {
+  let deepseekError;
+
+  if (deepseekApiKey) {
+    try {
+      return await requestDeepSeekProduct({ apiKey: deepseekApiKey, prompt, pageText });
+    } catch (error) {
+      deepseekError = error;
+    }
+  }
+
+  if (anthropicApiKey) {
+    try {
+      return await requestAnthropicProduct({ apiKey: anthropicApiKey, prompt, pageText });
+    } catch (error) {
+      const deepseekMessage = deepseekError instanceof Error ? deepseekError.message : '';
+      const anthropicMessage = error instanceof Error ? error.message : String(error);
+      const message = deepseekMessage
+        ? `${deepseekMessage}; fallback Anthropic: ${anthropicMessage}`
+        : anthropicMessage;
+      throw new HttpError(error instanceof HttpError ? error.status : 502, message);
+    }
+  }
+
+  if (deepseekError) throw deepseekError;
+  throw new HttpError(500, 'No hay ningún proveedor de IA configurado');
+}
+
+async function requestDeepSeekProduct({ apiKey, prompt, pageText }) {
   const apiResponse = await fetch(DEEPSEEK_ENDPOINT, {
     method: 'POST',
     headers: {
@@ -255,6 +288,65 @@ async function requestStructuredProduct({ apiKey, prompt, pageText }) {
   return {
     apiData,
     product: validateProductPayload(parsed),
+    provider: 'deepseek',
+  };
+}
+
+async function requestAnthropicProduct({ apiKey, prompt, pageText }) {
+  const apiResponse = await fetch(ANTHROPIC_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: ANTHROPIC_MODEL,
+      max_tokens: 2048,
+      system: PRODUCT_JSON_INSTRUCTION,
+      messages: [
+        {
+          role: 'user',
+          content: `${prompt}\n\nDatos extraídos de la página renderizada:\n${pageText || 'No se pudo leer la página; usa únicamente la URL y el modelo indicado.'}`,
+        },
+      ],
+    }),
+  });
+
+  const rawResponse = await apiResponse.text();
+  let apiData;
+  try {
+    apiData = JSON.parse(rawResponse);
+  } catch {
+    throw new HttpError(502, `Anthropic devolvió una respuesta no válida (${apiResponse.status})`);
+  }
+
+  if (!apiResponse.ok || apiData.error) {
+    throw new HttpError(apiResponse.status || 502, `Error de Anthropic: ${apiData.error?.message || 'respuesta rechazada'}`);
+  }
+
+  const content = Array.isArray(apiData.content)
+    ? apiData.content
+        .filter((block) => block?.type === 'text' && typeof block.text === 'string')
+        .map((block) => block.text)
+        .join('\n')
+        .trim()
+    : '';
+  if (!content) {
+    throw new HttpError(502, 'Anthropic no devolvió el producto estructurado');
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(content);
+  } catch {
+    throw new HttpError(502, 'Anthropic devolvió JSON inválido');
+  }
+
+  return {
+    apiData,
+    product: validateProductPayload(parsed),
+    provider: 'anthropic',
   };
 }
 

@@ -172,3 +172,57 @@ test('usa fetch HTTP como respaldo si Browser Run falla', async () => {
     globalThis.fetch = originalFetch;
   }
 });
+
+test('usa Anthropic Haiku cuando DeepSeek falla', async () => {
+  const originalFetch = globalThis.fetch;
+  const apiRequests = [];
+  globalThis.fetch = async (url, options) => {
+    apiRequests.push({ url: String(url), options });
+    if (String(url).startsWith('https://api.deepseek.com/')) {
+      return Response.json({ error: { message: 'Insufficient Balance' } }, { status: 402 });
+    }
+    if (String(url).startsWith('https://api.anthropic.com/')) {
+      return Response.json({
+        model: 'claude-haiku-4-5-20251001',
+        content: [{ type: 'text', text: JSON.stringify(validProduct) }],
+      });
+    }
+    throw new Error(`URL inesperada: ${url}`);
+  };
+
+  try {
+    const response = await worker.fetch(
+      new Request('https://worker.example', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: 'https://tienda.example/producto' }),
+      }),
+      {
+        DEEPSEEK_API_KEY: 'deepseek-test-key',
+        ANTHROPIC_KEY: 'anthropic-test-key',
+        BROWSER: {
+          async quickAction() {
+            return Response.json({
+              success: true,
+              result: '<html><body>Producto renderizado</body></html>',
+            });
+          },
+        },
+      },
+    );
+
+    assert.equal(response.status, 200);
+    const data = await response.json();
+    assert.equal(data.provider, 'anthropic');
+    assert.equal(data.product.nombre, 'Producto X');
+    assert.deepEqual(apiRequests.map((request) => request.url), [
+      'https://api.deepseek.com/chat/completions',
+      'https://api.anthropic.com/v1/messages',
+    ]);
+    const anthropicBody = JSON.parse(apiRequests[1].options.body);
+    assert.equal(anthropicBody.model, 'claude-haiku-4-5-20251001');
+    assert.equal(apiRequests[1].options.headers['x-api-key'], 'anthropic-test-key');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
