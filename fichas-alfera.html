@@ -520,6 +520,10 @@ Cada sección debe tener entre 3 y 8 filas con datos reales y útiles.`;
   if (!response.ok) throw new Error('Error del servidor: ' + response.status);
   const data = await response.json();
 
+  if (data.product) {
+    return { ...data.product, imageUrl: data.imageUrl || '' };
+  }
+
   let texto = '';
   if (data.content && data.content[0]) {
     texto = data.content[0].text;
