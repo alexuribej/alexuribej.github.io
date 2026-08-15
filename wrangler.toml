@@ -2,7 +2,4 @@ name = "alfera-proxy"
 main = "worker-script.js"
 compatibility_date = "2026-08-03"
 
-[browser]
-binding = "BROWSER"
-
 [vars]

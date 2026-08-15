@@ -1,8 +1,0 @@
-{
-  "name": "alfera-fichas-worker",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "test": "node worker-script.test.js"
-  }
-}
