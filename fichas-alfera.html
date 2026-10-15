@@ -362,6 +362,7 @@
 <script>
 const WORKER_URL = 'https://alfera-proxy.alex-uribej.workers.dev/';
 const EXECUTIVES_ENDPOINT = 'https://alexuribe-automatizacion.3wlqzr.easypanel.host/auth/validate-executive';
+const GENERATION_TIMEOUT_MS = 120000;
 let productCount = 1;
 let imagesByProduct = {}; // { idx: [dataURL, ...] }
 
@@ -457,7 +458,10 @@ async function generarFichas() {
       const ficha = await analizarProducto(prod.link);
       renderFicha(ficha, prod.imgs.length ? prod.imgs : (ficha.imageUrl ? [ficha.imageUrl] : []));
     } catch(e) {
-      mostrarError('Error al procesar: ' + prod.link + ' — ' + e.message);
+      const message = ['AbortError', 'TimeoutError'].includes(e.name)
+        ? 'La generación superó los 2 minutos. Inténtalo de nuevo.'
+        : e.message;
+      mostrarError('Error al procesar: ' + prod.link + ' — ' + message);
     }
   }
 
@@ -511,6 +515,7 @@ Cada sección debe tener entre 3 y 8 filas con datos reales y útiles.`;
 
   const response = await fetch(WORKER_URL, {
     method: 'POST',
+    signal: AbortSignal.timeout(GENERATION_TIMEOUT_MS),
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       messages: [{ role: 'user', content: prompt }]
